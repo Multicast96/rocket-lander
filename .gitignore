@@ -1,0 +1,14 @@
+!.gitignore
+
+*
+!*/
+!*.c
+!*.cpp
+!*.h
+!*.png
+!*.sln
+!*.ttf
+!*.dll
+!*.lib
+!*.hpp
+!*.vcxproj
