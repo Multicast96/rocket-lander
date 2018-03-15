@@ -11,3 +11,4 @@
 !*.dll
 !*.lib
 !*.hpp
+!*.vcxproj
