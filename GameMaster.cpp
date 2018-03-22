@@ -1,5 +1,4 @@
 #include"GameMaster.h"
-#include<stdexcept>
 
 double GameMaster::deltaTime = 0;
 Text GameMaster::log = Text();

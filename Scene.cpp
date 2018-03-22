@@ -1,6 +1,5 @@
 #pragma once
 #include"Scene.h"
-#include<iostream>
 
 Scene::Scene(Scene::Scenes sceneName) {
 	this->sceneName = sceneName;
