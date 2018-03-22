@@ -1,10 +1,9 @@
 #pragma once
 #include"Scene.h"
-#include<SFML\Graphics.hpp>
-#include<vector>
 
 using namespace std;
 
+class Scene;
 
 class GameMaster {
 public:

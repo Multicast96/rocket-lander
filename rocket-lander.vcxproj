@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="GameMaster.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
   </ItemGroup>
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMaster.h" />
+    <ClInclude Include="Rocket.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="Utils.h" />
