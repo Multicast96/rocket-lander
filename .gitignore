@@ -12,3 +12,5 @@
 !*.lib
 !*.hpp
 !*.vcxproj
+!*.inl
+!*.filters
