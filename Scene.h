@@ -1,5 +1,6 @@
 #pragma once
 #include<vector>
+#include<list>
 #include"Rocket.h"
 
 using namespace std;
@@ -16,6 +17,6 @@ public:
 	void Add(SceneObject *sceneObject);
 	void Action();
 private:
-	vector<SceneObject*> sceneObjects;
-	void landingCheck(Rocket*);
+	list<SceneObject*> sceneObjects;
+	bool landingCheck(SceneObject * r);
 };

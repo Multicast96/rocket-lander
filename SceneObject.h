@@ -7,7 +7,7 @@ Vector2f operator*(Vector2f v, double d);
 
 class SceneObject : public Drawable{
 public:
-	SceneObject(Vector2f position, Vector2f size = Vector2f(0,0));
+	SceneObject(Vector2f position, Vector2f size = Vector2f());
 	virtual void draw(RenderTarget &target, RenderStates state) const = 0;
 	virtual void move(Vector2f position) = 0;
 	virtual void action() = 0;

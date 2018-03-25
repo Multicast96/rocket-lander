@@ -13,6 +13,7 @@ GameMaster::GameMaster(Vector2i size) : size(size) {
 	settings.antialiasingLevel = 8;
 
 	window.create(VideoMode(size.x, size.y), "Rocket Lander", Style::Default, settings);
+	window.setFramerateLimit(60);
 	currentScene = NULL;
 	
 	//Global font
@@ -20,7 +21,6 @@ GameMaster::GameMaster(Vector2i size) : size(size) {
 		throw std::runtime_error("No font file");
 	}
 
-	
 	log.setCharacterSize(size.y*0.05);
 	log.setPosition(0, 0);
 	log.setFont(font);
@@ -41,7 +41,6 @@ void GameMaster::MainLoop() {
 	GameMaster::SetDeltaTime(clk.getElapsedTime().asSeconds());
 	double lastFrame = clk.getElapsedTime().asSeconds();
 
-
 	while (window.isOpen()){
 		GameMaster::SetDeltaTime(clk.getElapsedTime().asSeconds() - lastFrame);
 		lastFrame = clk.getElapsedTime().asSeconds();
@@ -51,6 +50,11 @@ void GameMaster::MainLoop() {
 		{
 			if (event.type == Event::Closed)
 				window.close();
+			if (event.type == Event::KeyPressed) {
+				if (Keyboard::isKeyPressed(Keyboard::Space)) {
+					currentScene->Add(new RocketPlayer(Vector2f(size.x / 2, size.y / 2)));
+				}
+			}
 		}
 
 		//todo

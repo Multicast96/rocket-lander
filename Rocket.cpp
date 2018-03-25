@@ -1,5 +1,6 @@
 #include"Rocket.h"
 #include"GameMaster.h"
+#include<iostream>
 
 double Rocket::gravity = 98.1;
 
@@ -7,24 +8,20 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	Rocket::InitTextures();
 
 	rocketSprite.setTexture(Rocket::rocketTexture);
-	rocketSprite.setScale(Vector2f(0.3, 0.3));
+	rocketSprite.setScale(Vector2f(1280/1980.0, 720/1080.0));
 	size = Vector2f(rocketSprite.getGlobalBounds().width, rocketSprite.getGlobalBounds().height);
 
 	currentFlameFrame = 0;
 	for (int i = 0; i < flameFrames; i++) {
 		flameSprites[i].setTexture(Rocket::flameTexture);
-		flameSprites[i].setTextureRect(IntRect(Vector2<int>(90 * i, 0), Vector2<int>(90, 256)));
-		flameSprites[i].setScale(Vector2f(0.3, 0.3));
+		flameSprites[i].setTextureRect(IntRect(Vector2<int>(33 * i, 0), Vector2<int>(33, 66)));
+		flameSprites[i].setScale(Vector2f(1, 1));
 	}
 
 
 	velocity = Vector2f(0, 0);
 	acceleration = Vector2f(0, gravity);
 	rocketSprite.setPosition(position.x - size.x/2, position.y - size.y/2);
-}
-
-Rocket::~Rocket() {
-	//remote.~thread();
 }
 
 Texture Rocket::rocketTexture = Texture();
@@ -85,7 +82,7 @@ void Rocket::action() {
 	tmp.y += size.y / 2;
 	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
 	flameSprites[currentFlameFrame].setPosition(tmp);
-	flameSprites[currentFlameFrame].setScale(Vector2f(0.25, isThrusting() ? 0.4 : 0.05));
+	flameSprites[currentFlameFrame].setScale(Vector2f(1280/1980.0, isThrusting() ? 720 / 1080.0 : 0.3));
 }
 
 void Rocket::draw(RenderTarget &target, RenderStates state)const {
@@ -102,8 +99,8 @@ bool Steerable::isMovingLeft() { return leftMovement; }
 bool Steerable::isMovingRight() { return rightMovement; }
 bool Steerable::isThrusting() { return thrust; }
 
-void RocketPlayer::HandleInput() {
-	while (true){
+void RocketPlayer::HandleInput(std::future<void> futureObj) {
+	while (futureObj.wait_for(std::chrono::milliseconds(10)) == std::future_status::timeout){
 		thrust = Keyboard::isKeyPressed(Keyboard::W);
 		leftMovement = Keyboard::isKeyPressed(Keyboard::A);
 		rightMovement = Keyboard::isKeyPressed(Keyboard::D);
@@ -111,6 +108,11 @@ void RocketPlayer::HandleInput() {
 }
 
 RocketPlayer::RocketPlayer(Vector2f pos) : Rocket(pos) {
-	input = std::thread(&RocketPlayer::HandleInput, this);
+	futureObj = exitSignal.get_future();
+	input = std::thread(&RocketPlayer::HandleInput, this, std::move(futureObj));
 }
 
+RocketPlayer::~RocketPlayer() {
+	exitSignal.set_value();
+	input.join();
+}
