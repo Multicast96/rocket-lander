@@ -34,8 +34,6 @@ private:
 	//TODO zrobiæ to sensowniej
 	//void RemoteConnection();
 	//std::thread remote; // Nowy w¹tek s³ucha komunikatów od zdalnego programu
-
-	Vector2f position;
 	Vector2f velocity;
 	Vector2f acceleration;
 	static double gravity;

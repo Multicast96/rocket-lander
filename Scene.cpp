@@ -23,5 +23,8 @@ void Scene::Add(SceneObject *sceneObject) {
 
 void Scene::landingCheck(Rocket *r){
 	if (r == nullptr) return;
+	Vector2f rPos = r->getPosition();
+	Vector2f rSize = r->getSize();
+	//if(r->getPosition)
 
 }

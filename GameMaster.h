@@ -14,7 +14,7 @@ public:
 	void GameMaster::AddScene(Scene *s, bool setCurrent = false);
 	static double GetDeltaTime();
 	static double GetTime();
-	static void Log(string message);
+	static void Log(string message, int line);
 	const Vector2i size;
 private:
 	vector<Scene*> scenes;

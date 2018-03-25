@@ -22,7 +22,7 @@ GameMaster::GameMaster(Vector2i size) : size(size) {
 
 	
 	log.setCharacterSize(size.y*0.05);
-	log.setPosition(0, size.y*0.05);
+	log.setPosition(0, 0);
 	log.setFont(font);
 	log.setFillColor(Color::Black);
 }
@@ -40,6 +40,7 @@ double GameMaster::GetTime() {
 void GameMaster::MainLoop() {	
 	GameMaster::SetDeltaTime(clk.getElapsedTime().asSeconds());
 	double lastFrame = clk.getElapsedTime().asSeconds();
+
 
 	while (window.isOpen()){
 		GameMaster::SetDeltaTime(clk.getElapsedTime().asSeconds() - lastFrame);
@@ -64,4 +65,6 @@ void GameMaster::MainLoop() {
 	}
 }
 
-void GameMaster::Log(string message) { log.setString(message); }
+void GameMaster::Log(string message, int line) {
+	log.setString(message);
+}

@@ -3,11 +3,12 @@
 
 double Rocket::gravity = 98.1;
 
-Rocket::Rocket(Vector2f pos) {
+Rocket::Rocket(Vector2f position) : SceneObject(position){
 	Rocket::InitTextures();
 
 	rocketSprite.setTexture(Rocket::rocketTexture);
 	rocketSprite.setScale(Vector2f(0.3, 0.3));
+	size = Vector2f(rocketSprite.getGlobalBounds().width, rocketSprite.getGlobalBounds().height);
 
 	currentFlameFrame = 0;
 	for (int i = 0; i < flameFrames; i++) {
@@ -16,13 +17,10 @@ Rocket::Rocket(Vector2f pos) {
 		flameSprites[i].setScale(Vector2f(0.3, 0.3));
 	}
 
-	position = pos;
+
 	velocity = Vector2f(0, 0);
 	acceleration = Vector2f(0, gravity);
-	rocketSprite.setPosition(position.x - rocketSprite.getGlobalBounds().width / 2, position.y - rocketSprite.getGlobalBounds().height / 2);
-
-	////REMOTE CONNECTION
-	//remote = std::thread(&Rocket::RemoteConnection, this);
+	rocketSprite.setPosition(position.x - size.x/2, position.y - size.y/2);
 }
 
 Rocket::~Rocket() {
@@ -75,7 +73,8 @@ void Rocket::action() {
 	if (isMovingLeft()) move(Vector2f(-GameMaster::GetDeltaTime()*moveSpeed, 0));
 	if (isMovingRight()) move(Vector2f(GameMaster::GetDeltaTime()*moveSpeed, 0));
 
-	GameMaster::Log("Vertical velocity: " + to_string(int(-velocity.y / 10)) + " m/s");
+	GameMaster::Log("Vertical velocity: " + to_string(int(-velocity.y / 10)) + " m/s", 1);
+
 	move(velocity * GameMaster::GetDeltaTime());
 	velocity += acceleration * GameMaster::GetDeltaTime();
 
@@ -83,7 +82,7 @@ void Rocket::action() {
 	currentFlameFrame = (currentFlameFrame + 1) % flameFrames;
 
 	Vector2f tmp(position);
-	tmp.y += rocketSprite.getGlobalBounds().height / 2;
+	tmp.y += size.y / 2;
 	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
 	flameSprites[currentFlameFrame].setPosition(tmp);
 	flameSprites[currentFlameFrame].setScale(Vector2f(0.25, isThrusting() ? 0.4 : 0.05));
@@ -94,9 +93,9 @@ void Rocket::draw(RenderTarget &target, RenderStates state)const {
 	target.draw(rocketSprite);
 }
 
-void Rocket::move(Vector2f pos) {
-	position += pos;
-	rocketSprite.move(pos);
+void Rocket::move(Vector2f v) {
+	position += v;
+	rocketSprite.move(v);
 }
 
 bool Steerable::isMovingLeft() { return leftMovement; } 
