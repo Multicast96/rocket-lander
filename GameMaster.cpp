@@ -9,7 +9,10 @@ Clock GameMaster::clk = Clock();
 
 
 GameMaster::GameMaster(Vector2i size) : size(size) {
-	window.create(VideoMode(size.x, size.y), "Rocket Lander");
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
+
+	window.create(VideoMode(size.x, size.y), "Rocket Lander", Style::Default, settings);
 	currentScene = NULL;
 	
 	//Global font

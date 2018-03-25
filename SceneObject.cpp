@@ -9,11 +9,9 @@ Vector2f operator*(Vector2f v, double d) {
 }
 
 
-Vector2f Platform::size = Vector2f(200, 100);
-
-Platform::Platform(Vector2f pos) {
+Platform::Platform(Vector2f pos, Vector2f size) {
 	sprite = RectangleShape(size);
-	sprite.setPosition(pos + Vector2f(-size.x/2, 0));
+	sprite.setPosition(pos - Vector2f(size.x/2, size.y/2));
 	sprite.setFillColor(Color(128, 16, 0));
 }
 

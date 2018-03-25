@@ -9,8 +9,7 @@ int main()
 	try {
 		GameMaster master(Vector2i(1280,720));
 		RocketPlayer r1(Vector2f(master.size.x/2, master.size.y/2));
-		Platform p1(Vector2f(1280 / 2, 720 - Platform::size.y));
-
+		Platform p1(Vector2f(master.size.x/2, master.size.y));
 
 		Scene s1(Scene::MENU);
 		s1.Add(&r1);

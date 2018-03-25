@@ -14,11 +14,12 @@ public:
 
 class Platform : public SceneObject {
 public:
-	Platform(Vector2f pos);
+	Vector2f size;
+
+	Platform(Vector2f pos, Vector2f size = Vector2f(200, 100));
 	void draw(RenderTarget &target, RenderStates state)const;
 	void move(Vector2f pos);
 	void action();
-	static Vector2f size;
 
 private:
 	RectangleShape sprite;
