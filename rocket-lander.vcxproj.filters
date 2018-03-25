@@ -41,6 +41,9 @@
     <Image Include="flame_sheet.png">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="noiseWater.png">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">
@@ -57,5 +60,10 @@
     <Font Include="sansation.ttf">
       <Filter>Resources</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="water.frag">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>
