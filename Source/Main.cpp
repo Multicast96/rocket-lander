@@ -8,11 +8,11 @@ int main()
 {
 	try {
 		GameMaster master(Vector2i(1280,720));
-		Platform p1(Vector2f(master.size.x/2, master.size.y));
+		Platform p1(Vector2f(GameMaster::getSize().x/2.0, GameMaster::getSize().y));
 
 		Scene s1(Scene::MENU);
 		s1.Add(&p1);
-		s1.Add(new RocketPlayer(Vector2f(master.size.x / 2, master.size.y / 2)));
+		s1.Add(new RocketPlayer(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y / 2)));
 
 		master.AddScene(&s1,true);
 		master.MainLoop();

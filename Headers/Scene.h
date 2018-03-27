@@ -18,5 +18,6 @@ public:
 	void Action();
 private:
 	list<SceneObject*> sceneObjects;
-	bool landingCheck(SceneObject * r);
+	bool landingCheck(Rocket * r);
+	static Vector2f landingVelocity;
 };

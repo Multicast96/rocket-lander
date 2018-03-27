@@ -5,13 +5,17 @@ Text GameMaster::log = Text();
 Font GameMaster::font = Font();
 double GameMaster::GetDeltaTime(){ return deltaTime; }
 void GameMaster::SetDeltaTime(double dTime) { deltaTime = dTime;}
+Font& GameMaster::getFont() { return font; }
 Clock GameMaster::clk = Clock();
+Vector2i GameMaster::size = Vector2i(0, 0);
+Vector2i GameMaster::getSize() { return size; }
 
 
-GameMaster::GameMaster(Vector2i size) : size(size) {
+GameMaster::GameMaster(Vector2i size) {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
+	GameMaster::size = size;
 	window.create(VideoMode(size.x, size.y), "Rocket Lander", Style::Default, settings);
 	window.setFramerateLimit(60);
 	currentScene = NULL;

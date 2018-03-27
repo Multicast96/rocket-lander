@@ -61,9 +61,4 @@
       <Filter>Resources</Filter>
     </Font>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="water.frag">
-      <Filter>Resources</Filter>
-    </None>
-  </ItemGroup>
 </Project>
