@@ -1,10 +1,6 @@
 #pragma once
 #include"SceneObject.h"
-#include<thread>
-#include<future>
-#include<assert.h>
-#include<chrono>
-
+#include"common.h"
 // REMOTE CONNECTION DEPENDENCIES
 //#include <zmq.h>
 //#include <stdio.h>

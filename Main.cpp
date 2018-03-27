@@ -1,18 +1,15 @@
 #include"GameMaster.h"
-#include<Windows.h>
-#include<string>
-
-using namespace sf;
+#include"common.h"
 
 int main()
 {
 	try {
 		GameMaster master(Vector2i(1280,720));
-		Platform p1(Vector2f(GameMaster::getSize().x/2.0, GameMaster::getSize().y));
 
-		Scene s1(Scene::MENU);
-		s1.Add(&p1);
+		AItraining s1(Scene::SCENE_NAME::MENU);
+		s1.Add(new Background((Vector2f)master.getSize() * 0.5,  (Vector2f)master.getSize()));
 		s1.Add(new RocketPlayer(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y / 2)));
+		s1.AddPlatform(new Platform(Vector2f(GameMaster::getSize().x / 2.0, GameMaster::getSize().y)));
 
 		master.AddScene(&s1,true);
 		master.MainLoop();

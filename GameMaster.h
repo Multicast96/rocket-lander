@@ -1,5 +1,6 @@
 #pragma once
 #include"Scene.h"
+#include"common.h"
 
 using namespace std;
 

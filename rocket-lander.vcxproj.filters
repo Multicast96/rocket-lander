@@ -27,6 +27,9 @@
     <ClCompile Include="SceneObject.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="AItraining.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMaster.h">
@@ -41,7 +44,7 @@
     <ClInclude Include="SceneObject.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
+    <ClInclude Include="common.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

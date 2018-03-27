@@ -16,7 +16,7 @@ GameMaster::GameMaster(Vector2i size) {
 	settings.antialiasingLevel = 8;
 
 	GameMaster::size = size;
-	window.create(VideoMode(size.x, size.y), "Rocket Lander", Style::Default, settings);
+	window.create(VideoMode(size.x, size.y), "Rock4et Lander", Style::Default, settings);
 	window.setFramerateLimit(60);
 	currentScene = NULL;
 	

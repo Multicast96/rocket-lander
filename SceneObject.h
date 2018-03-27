@@ -1,5 +1,5 @@
 #pragma once
-#include<SFML\Graphics.hpp>
+#include"common.h"
 
 using namespace sf;
 
@@ -28,4 +28,15 @@ public:
 
 private:
 	RectangleShape sprite;
+};
+
+class Background : public SceneObject {
+public:
+	Background(Vector2f position, Vector2f size = Vector2f(1920, 1680));
+	void draw(RenderTarget &target, RenderStates state)const;
+	void move(Vector2f position);
+	void action();
+private:
+	Texture bgTexture;
+	Sprite bgSprite;
 };
