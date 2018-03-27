@@ -145,7 +145,7 @@
       <AdditionalIncludeDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\SFML\include;C:\Users\kamil\Desktop\my_projects\rocket-lander\ZeroMQ\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -161,9 +161,6 @@
     <ClCompile Include="SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="sansation.ttf" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="GameMaster.h" />
     <ClInclude Include="Rocket.h" />
     <ClInclude Include="Scene.h" />
@@ -171,9 +168,11 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="flame_sheet.png" />
-    <Image Include="noiseWater.png" />
-    <Image Include="rocket.png" />
+    <Image Include="Assets\Textures\flame_sheet.png" />
+    <Image Include="Assets\Textures\rocket.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Assets\Resourcess\sansation.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

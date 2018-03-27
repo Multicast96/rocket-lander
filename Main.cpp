@@ -18,6 +18,6 @@ int main()
 		master.MainLoop();
 	}
 	catch (std::exception &e) {
-		MessageBoxW(NULL, (LPCWSTR)e.what(), (LPCWSTR)"Wyst¹pi³ problem :(",0);
+		MessageBoxA(NULL, (LPCSTR)e.what(), (LPCSTR)"Wyst¹pi³ problem :(",0);
 	}
 }

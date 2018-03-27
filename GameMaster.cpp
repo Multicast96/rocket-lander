@@ -21,7 +21,7 @@ GameMaster::GameMaster(Vector2i size) {
 	currentScene = NULL;
 	
 	//Global font
-	if (!font.loadFromFile("sansation.ttf")) {
+	if (!font.loadFromFile("assets/resourcess/sansation.ttf")) {
 		throw std::runtime_error("No font file");
 	}
 

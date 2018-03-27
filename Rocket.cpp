@@ -51,8 +51,8 @@ Texture Rocket::rocketTexture = Texture();
 Texture Rocket::flameTexture = Texture();
 
 void Rocket::InitTextures() {
-	if (!Rocket::rocketTexture.loadFromFile("rocket.png")) throw std::runtime_error("Couldn't load rocket image");
-	if (!Rocket::flameTexture.loadFromFile("flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
+	if (!Rocket::rocketTexture.loadFromFile("assets/textures/rocket.png")) throw std::runtime_error("Couldn't load rocket image");
+	if (!Rocket::flameTexture.loadFromFile("assets/textures/flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
 
 	flameTexture.setSmooth(false);
 	rocketTexture.setSmooth(true);
