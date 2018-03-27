@@ -1,22 +1,32 @@
 #pragma once
-#include<vector>
-#include<list>
 #include"Rocket.h"
+#include"common.h"
 
 using namespace std;
 
 class Scene : public Drawable{
 public:
-	static enum Scenes {
+	static enum SCENE_NAME {
 		MENU,
 		AI_TRAINING
 	};
-	Scenes sceneName;
-	Scene(Scenes sceneName);
+	SCENE_NAME sceneName;
+	Scene(SCENE_NAME sceneName);
 	virtual void draw(RenderTarget &target, RenderStates state)const;
 	void Add(SceneObject *sceneObject);
+	void AddPlatform(SceneObject * sceneObject);
+	virtual void Action() = 0;
+
+protected:
+	Platform* platform;
+	list<SceneObject*> sceneObjects;
+};
+
+class AItraining : public Scene {
+public:
+	AItraining(SCENE_NAME sceneName);
 	void Action();
 private:
-	list<SceneObject*> sceneObjects;
-	bool landingCheck(SceneObject * r);
+	bool landingCheck(Rocket * r);
+	static Vector2f landingVelocity;
 };

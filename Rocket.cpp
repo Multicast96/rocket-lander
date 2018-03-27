@@ -1,11 +1,19 @@
 #include"Rocket.h"
 #include"GameMaster.h"
-#include<iostream>
 
 double Rocket::gravity = 98.1;
 
+Vector2f Rocket::getVelocity() {
+	return velocity;
+}
+void Rocket::setVelocity(Vector2f v) {
+	velocity = v;
+}
+
 Rocket::Rocket(Vector2f position) : SceneObject(position){
 	Rocket::InitTextures();
+	isActive = true;
+	timeout = false;
 
 	rocketSprite.setTexture(Rocket::rocketTexture);
 	rocketSprite.setScale(Vector2f(1280/1980.0, 720/1080.0));
@@ -22,14 +30,28 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	velocity = Vector2f(0, 0);
 	acceleration = Vector2f(0, gravity);
 	rocketSprite.setPosition(position.x - size.x/2, position.y - size.y/2);
+
+	//texts
+	name = Text();
+	label = Text();
+	name.setCharacterSize(GameMaster::getSize().y*0.03);
+	label.setCharacterSize(GameMaster::getSize().y*0.03);
+	name.setPosition(position.x + size.x, position.y - size.y/2);
+	label.setPosition(position.x + size.x, position.y - size.y / 2 + label.getCharacterSize());
+	name.setFont(GameMaster::getFont());
+	label.setFont(GameMaster::getFont());
+	name.setFillColor(Color::Black);
+	label.setFillColor(Color::Black);
+	name.setString ("Janusz");
+
 }
 
 Texture Rocket::rocketTexture = Texture();
 Texture Rocket::flameTexture = Texture();
 
 void Rocket::InitTextures() {
-	if (!Rocket::rocketTexture.loadFromFile("rocket.png")) throw std::runtime_error("Couldn't load rocket image");
-	if (!Rocket::flameTexture.loadFromFile("flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
+	if (!Rocket::rocketTexture.loadFromFile("assets/textures/rocket.png")) throw std::runtime_error("Couldn't load rocket image");
+	if (!Rocket::flameTexture.loadFromFile("assets/textures/flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
 
 	flameTexture.setSmooth(false);
 	rocketTexture.setSmooth(true);
@@ -63,14 +85,17 @@ void Rocket::InitTextures() {
 //}
 
 void Rocket::action() {
+	if (!isActive) return;
+
 	int moveSpeed = 100;
 	int thrust = 120;
 	if(isThrusting()) { acceleration.y = -thrust;}
 	else { acceleration.y = gravity;}
-	if (isMovingLeft()) move(Vector2f(-GameMaster::GetDeltaTime()*moveSpeed, 0));
+	if (isMovingLeft()) timeout = true;
 	if (isMovingRight()) move(Vector2f(GameMaster::GetDeltaTime()*moveSpeed, 0));
 
-	GameMaster::Log("Vertical velocity: " + to_string(int(-velocity.y / 10)) + " m/s", 1);
+	//vv - vertical velocity
+	label.setString("vv[m/s]: " + to_string(int(-velocity.y)));
 
 	move(velocity * GameMaster::GetDeltaTime());
 	velocity += acceleration * GameMaster::GetDeltaTime();
@@ -88,11 +113,15 @@ void Rocket::action() {
 void Rocket::draw(RenderTarget &target, RenderStates state)const {
 	target.draw(flameSprites[currentFlameFrame]);
 	target.draw(rocketSprite);
+	target.draw(name);
+	target.draw(label);
 }
 
 void Rocket::move(Vector2f v) {
 	position += v;
 	rocketSprite.move(v);
+	name.move(v);
+	label.move(v);
 }
 
 bool Steerable::isMovingLeft() { return leftMovement; } 

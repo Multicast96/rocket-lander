@@ -1,10 +1,6 @@
 #pragma once
 #include"SceneObject.h"
-#include<thread>
-#include<future>
-#include<assert.h>
-#include<chrono>
-
+#include"common.h"
 // REMOTE CONNECTION DEPENDENCIES
 //#include <zmq.h>
 //#include <stdio.h>
@@ -29,25 +25,27 @@ public:
 
 class Rocket : public SceneObject, public Steerable{
 public:
+	Vector2f getVelocity();
+	void setVelocity(Vector2f v);
 	Rocket(Vector2f pos);
 	static void InitTextures();
 	void draw(RenderTarget &target, RenderStates state)const;
 	void move(Vector2f pos);
 	void action();
-
+	bool isActive;
+	bool timeout;
 private:
-	//TODO zrobiæ to sensowniej
-	//void RemoteConnection();
-	//std::thread remote; // Nowy w¹tek s³ucha komunikatów od zdalnego programu
 	Vector2f velocity;
 	Vector2f acceleration;
 	static double gravity;
 	static Texture rocketTexture;
 	static Texture flameTexture;
 	const int flameFrames = 1;
-	Sprite flameSprites[1];
-	Sprite rocketSprite;
+	sf::Sprite flameSprites[1];
+	sf::Sprite rocketSprite;
 	int currentFlameFrame;
+	sf::Text name;
+	sf::Text label;
 };
 
 class RocketPlayer : public Rocket{

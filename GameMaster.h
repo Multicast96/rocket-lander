@@ -1,5 +1,6 @@
 #pragma once
 #include"Scene.h"
+#include"common.h"
 
 using namespace std;
 
@@ -15,10 +16,12 @@ public:
 	static double GetDeltaTime();
 	static double GetTime();
 	static void Log(string message, int line);
-	const Vector2i size;
+	static Font& getFont();
+	static Vector2i getSize();
 private:
 	vector<Scene*> scenes;
 	RenderWindow window;
+	static Vector2i size;
 	static Clock clk;
 	static void SetDeltaTime(double deltaTime);
 	static double deltaTime;
