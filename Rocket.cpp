@@ -16,7 +16,7 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	timeout = false;
 
 	rocketSprite.setTexture(Rocket::rocketTexture);
-	rocketSprite.setScale(Vector2f(1280/1980.0, 720/1080.0));
+	rocketSprite.setScale(Vector2f(GameMaster::getSize().x/1980.0, GameMaster::getSize().y/1080.0));
 	size = Vector2f(rocketSprite.getGlobalBounds().width, rocketSprite.getGlobalBounds().height);
 
 	currentFlameFrame = 0;
@@ -34,8 +34,8 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	//texts
 	name = Text();
 	label = Text();
-	name.setCharacterSize(GameMaster::getSize().y*0.03);
-	label.setCharacterSize(GameMaster::getSize().y*0.03);
+	name.setCharacterSize(GameMaster::smallFontSize);
+	label.setCharacterSize(GameMaster::smallFontSize);
 	name.setPosition(position.x + size.x, position.y - size.y/2);
 	label.setPosition(position.x + size.x, position.y - size.y / 2 + label.getCharacterSize());
 	name.setFont(GameMaster::getFont());
@@ -107,7 +107,7 @@ void Rocket::action() {
 	tmp.y += size.y / 2;
 	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
 	flameSprites[currentFlameFrame].setPosition(tmp);
-	flameSprites[currentFlameFrame].setScale(Vector2f(1280/1980.0, isThrusting() ? 720 / 1080.0 : 0.3));
+	flameSprites[currentFlameFrame].setScale(Vector2f(rocketSprite.getScale().x, isThrusting() ? rocketSprite.getScale().y : rocketSprite.getScale().y*0.25));
 }
 
 void Rocket::draw(RenderTarget &target, RenderStates state)const {

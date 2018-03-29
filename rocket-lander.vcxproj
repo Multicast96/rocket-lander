@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="AItraining.cpp" />
     <ClCompile Include="GameMaster.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="Scene.cpp" />

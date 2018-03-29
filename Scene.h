@@ -16,8 +16,9 @@ public:
 	void Add(SceneObject *sceneObject);
 	void AddPlatform(SceneObject * sceneObject);
 	virtual void Action() = 0;
-
+	std::string getName();
 protected:
+	static const std::string SCENE_NAMES[2];
 	Platform* platform;
 	list<SceneObject*> sceneObjects;
 };

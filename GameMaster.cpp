@@ -1,7 +1,6 @@
 #include"GameMaster.h"
 
 double GameMaster::deltaTime = 0;
-Text GameMaster::log = Text();
 Font GameMaster::font = Font();
 double GameMaster::GetDeltaTime(){ return deltaTime; }
 void GameMaster::SetDeltaTime(double dTime) { deltaTime = dTime;}
@@ -9,6 +8,16 @@ Font& GameMaster::getFont() { return font; }
 Clock GameMaster::clk = Clock();
 Vector2i GameMaster::size = Vector2i(0, 0);
 Vector2i GameMaster::getSize() { return size; }
+
+double GameMaster::smallFontSize = 0.03; //procent wysokoœci ekranu
+double GameMaster::normalFontSize = 0.05;
+double GameMaster::bigFontSize = 0.08;
+
+GameMaster::GUI GameMaster::gui = GUI();
+
+void GameMaster::setGUIText(std::string message, GUI::PLACEHOLDER place) {
+	gui.texts[place].setString(message);
+}
 
 
 GameMaster::GameMaster(Vector2i size) {
@@ -19,22 +28,27 @@ GameMaster::GameMaster(Vector2i size) {
 	window.create(VideoMode(size.x, size.y), "Rock4et Lander", Style::Default, settings);
 	window.setFramerateLimit(60);
 	currentScene = NULL;
+	smallFontSize *= size.y;
+	normalFontSize *= size.y;
+	bigFontSize *= size.y;
 	
 	//Global font
 	if (!font.loadFromFile("assets/resourcess/sansation.ttf")) {
 		throw std::runtime_error("No font file");
 	}
 
-	log.setCharacterSize(size.y*0.05);
-	log.setPosition(0, 0);
-	log.setFont(font);
-	log.setFillColor(Color::Black);
+	gui = GUI((sf::Vector2f)size);
+	setGUIText("Rocket Lander", GUI::UPPER_LEFT1);
+	setGUIText("Alpha 0.0.3", GUI::BOTTOM_LEFT);
 }
 
 //setCurrent is false by default
 void GameMaster::AddScene(Scene *s, bool setCurrent) { 
 	scenes.push_back(s);
-	currentScene = s;
+	if (setCurrent) {
+		currentScene = s;
+		setGUIText(s->getName(), GUI::UPPER_LEFT2);
+	}
 }
 
 double GameMaster::GetTime() {
@@ -68,11 +82,7 @@ void GameMaster::MainLoop() {
 		window.clear(Color::White);
 		currentScene->Action();
 		window.draw(*currentScene);
-		window.draw(log);
+		window.draw(gui);
 		window.display();
 	}
-}
-
-void GameMaster::Log(string message, int line) {
-	log.setString(message);
 }
