@@ -39,7 +39,7 @@ GameMaster::GameMaster(Vector2i size) {
 
 	gui = GUI((sf::Vector2f)size);
 	setGUIText("Rocket Lander", GUI::UPPER_LEFT1);
-	setGUIText("Alpha 0.0.3", GUI::BOTTOM_LEFT);
+	setGUIText("Alpha 0.0.3", GUI::BOTTOM_LEFT); 
 }
 
 //setCurrent is false by default
