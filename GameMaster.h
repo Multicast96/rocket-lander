@@ -15,9 +15,30 @@ public:
 	void GameMaster::AddScene(Scene *s, bool setCurrent = false);
 	static double GetDeltaTime();
 	static double GetTime();
-	static void Log(string message, int line);
 	static Font& getFont();
 	static Vector2i getSize();
+	static double smallFontSize;
+	static double normalFontSize;
+	static double bigFontSize;
+
+	class GUI : public Drawable {
+	public:
+		static enum PLACEHOLDER {
+			UPPER_LEFT1,
+			UPPER_LEFT2,
+			UPPER_RIGHT1,
+			UPPER_RIGHT2,
+			BOTTOM_LEFT,
+			BOTTOM_RIGHT,
+		};
+		GUI();
+		GUI(sf::Vector2f sc);
+		void draw(RenderTarget &target, RenderStates state)const;
+		sf::Text texts[6];
+	private:
+		sf::Vector2f screen;
+	};
+	static void setGUIText(std::string message , GUI::PLACEHOLDER place);
 private:
 	vector<Scene*> scenes;
 	RenderWindow window;
@@ -26,6 +47,5 @@ private:
 	static void SetDeltaTime(double deltaTime);
 	static double deltaTime;
 	static Font font;
-	//log
-	static Text log;
+	static GUI gui;
 };
