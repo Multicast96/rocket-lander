@@ -14,6 +14,7 @@ public:
 	Scene(SCENE_NAME sceneName);
 	virtual void draw(RenderTarget &target, RenderStates state)const;
 	void Add(SceneObject *sceneObject);
+	void AddRocket(SceneObject * sceneObject);
 	void AddPlatform(SceneObject * sceneObject);
 	virtual void Action() = 0;
 	std::string getName();

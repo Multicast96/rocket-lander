@@ -38,8 +38,8 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	label.setCharacterSize(GameMaster::smallFontSize);
 	name.setPosition(position.x + size.x, position.y - size.y/2);
 	label.setPosition(position.x + size.x, position.y - size.y / 2 + label.getCharacterSize());
-	name.setFont(GameMaster::getFont());
-	label.setFont(GameMaster::getFont());
+	name.setFont(GameMaster::getFont(MAIN));
+	label.setFont(GameMaster::getFont(MAIN));
 	name.setFillColor(Color::Black);
 	label.setFillColor(Color::Black);
 	name.setString ("Janusz");
@@ -53,7 +53,7 @@ void Rocket::InitTextures() {
 	if (!Rocket::rocketTexture.loadFromFile("assets/textures/rocket.png")) throw std::runtime_error("Couldn't load rocket image");
 	if (!Rocket::flameTexture.loadFromFile("assets/textures/flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
 
-	flameTexture.setSmooth(false);
+	flameTexture.setSmooth(true);
 	rocketTexture.setSmooth(true);
 }
 
