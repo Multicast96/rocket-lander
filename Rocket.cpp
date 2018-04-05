@@ -91,7 +91,7 @@ void Rocket::action() {
 	int thrust = 120;
 	if(isThrusting()) { acceleration.y = -thrust;}
 	else { acceleration.y = gravity;}
-	if (isMovingLeft()) timeout = true;
+	if (isMovingLeft()) move(Vector2f(-GameMaster::GetDeltaTime()*moveSpeed, 0));
 	if (isMovingRight()) move(Vector2f(GameMaster::GetDeltaTime()*moveSpeed, 0));
 
 	//vv - vertical velocity
@@ -142,6 +142,26 @@ RocketPlayer::RocketPlayer(Vector2f pos) : Rocket(pos) {
 }
 
 RocketPlayer::~RocketPlayer() {
+	exitSignal.set_value();
+	input.join();
+}
+
+
+void RocketAI::HandleInput(std::future<void> futureObj) {
+	while (futureObj.wait_for(std::chrono::milliseconds(10)) == std::future_status::timeout) {
+		thrust = Keyboard::isKeyPressed(Keyboard::W);
+		leftMovement = Keyboard::isKeyPressed(Keyboard::A);
+		rightMovement = Keyboard::isKeyPressed(Keyboard::D);
+	}
+}
+
+RocketAI::RocketAI(Vector2f pos, int id) : Rocket(pos) {
+	futureObj = exitSignal.get_future();
+	input = std::thread(&RocketAI::HandleInput, this, std::move(futureObj));
+	name.setString("Janusz #" + std::to_string(id));
+}
+
+RocketAI::~RocketAI() {
 	exitSignal.set_value();
 	input.join();
 }

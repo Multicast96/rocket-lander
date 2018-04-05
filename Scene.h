@@ -1,6 +1,6 @@
 #pragma once
-#include"Rocket.h"
 #include"common.h"
+#include"Rocket.h"
 
 using namespace std;
 
@@ -28,7 +28,14 @@ class AItraining : public Scene {
 public:
 	AItraining(SCENE_NAME sceneName);
 	void Action();
+	const static double simTime;
+	void spawnRockets(int n);
 private:
+	bool isRunning;
+	double simStart;
+	double* results;
+	int rocketCount;
+	void sendResults();
 	bool landingCheck(Rocket * r);
 	static Vector2f landingVelocity;
 };

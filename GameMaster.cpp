@@ -87,7 +87,7 @@ void GameMaster::MainLoop() {
 				window.close();
 			if (event.type == Event::KeyPressed) {
 				if (Keyboard::isKeyPressed(Keyboard::Space)) {
-					currentScene->AddRocket(new RocketPlayer(Vector2f(size.x / 2, size.y / 2)));
+					dynamic_cast<AItraining*>(currentScene)->spawnRockets(20);
 				}
 			}
 		}

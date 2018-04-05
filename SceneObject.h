@@ -1,9 +1,10 @@
 #pragma once
 #include"common.h"
 
+sf::Vector2f operator*(sf::Vector2f v, double d);
+
 using namespace sf;
 
-Vector2f operator*(Vector2f v, double d);
 
 class SceneObject : public Drawable{
 public:

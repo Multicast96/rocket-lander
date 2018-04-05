@@ -3,13 +3,12 @@
 #include"GameMaster.h"
 #include<stdexcept>
 
-using namespace sf;
 
 sf::Vector2f operator*(sf::Vector2f v, double d) {
 	return sf::Vector2f(v.x * d, v.y * d);
 }
 
-
+using namespace sf;
 Vector2f SceneObject::getPosition() { return position; }
 Vector2f SceneObject::getSize() { return size; }
 SceneObject::SceneObject(Vector2f position, Vector2f size) : position(position), size(size) {}
@@ -48,12 +47,12 @@ void Platform::move(Vector2f v) {
 
 void Platform::action() {
 	// dla beki :)
-	const int speed = 10;
-	double vertical = speed * sin(GameMaster::GetTime())  * GameMaster::GetDeltaTime();
-	vertical *= vertical;
-	double horizontal = speed * sin(GameMaster::GetTime()) * GameMaster::GetDeltaTime();
+	//const int speed = 10;
+	//double vertical = speed * sin(GameMaster::GetTime())  * GameMaster::GetDeltaTime();
+	//vertical *= vertical;
+	//double horizontal = speed * sin(GameMaster::GetTime()) * GameMaster::GetDeltaTime();
 
-	move(Vector2f(vertical, horizontal));
+	//move(Vector2f(vertical, horizontal));
 }
 
 sf::Texture Wave::waveTexture = sf::Texture();
