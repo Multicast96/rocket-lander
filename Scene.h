@@ -2,6 +2,13 @@
 #include"common.h"
 #include"Rocket.h"
 
+// REMOTE CONNECTION DEPENDENCIES
+#include <zmq.h>
+//#include <stdio.h>
+//#include <io.h>
+//#include <string.h>
+#include <assert.h>
+
 using namespace std;
 
 class Scene : public Drawable{
@@ -27,15 +34,20 @@ protected:
 class AItraining : public Scene {
 public:
 	AItraining(SCENE_NAME sceneName);
+	~AItraining();
 	void Action();
 	const static double simTime;
 	void spawnRockets(int n);
 private:
+	void* context; //zmq connection
+	std::thread server;
 	bool isRunning;
 	double simStart;
 	double* results;
+	bool resultsReady;
 	int rocketCount;
-	void sendResults();
+	void sendResults(void * responder);
+	void handleServer();
 	bool landingCheck(Rocket * r);
 	static Vector2f landingVelocity;
 };
