@@ -19,10 +19,10 @@ void AItraining::Action() {
 		}
 	}
 
+	isRunning = false;
 	it = sceneObjects.begin();
 	while (it != sceneObjects.end()) {
 		(*it)->action(); //action performed by this object
-		isRunning = false;
 		if ((tmp = dynamic_cast<RocketAI*>(*it)) != nullptr && tmp->isActive) {
 			GameMaster::displayOnGUI("Time: " + std::to_string(tmpTime), GameMaster::GUI::UPPER_RIGHT1);
 			isRunning = true;
@@ -52,7 +52,7 @@ void AItraining::Action() {
 		else it++;
 	}
 	if (!isRunning)
-		sendResults();
+		resultsReady = true;
 }
 
 bool AItraining::landingCheck(Rocket *r) {
@@ -65,10 +65,16 @@ bool AItraining::landingCheck(Rocket *r) {
 }
 
 AItraining::AItraining(Scene::SCENE_NAME sceneName) : Scene(sceneName), isRunning(false) {
+	server = std::thread(&AItraining::handleServer, this);
+}
+
+AItraining::~AItraining() {
+	server.join();
 }
 
 void AItraining::spawnRockets(int n) {
 	rocketCount = n;
+	resultsReady = false;
 	results = new double[n];
 	for (int i = 0; i < n; i++) {
 		AddRocket(new RocketAI((Vector2f)GameMaster::getSize() * 0.5, i));
@@ -77,12 +83,46 @@ void AItraining::spawnRockets(int n) {
 	isRunning = true;
 }
 
-void AItraining::sendResults() {
+void AItraining::sendResults(void* responder) {
 	std::string r = "";
 	for (int i = 0; i < rocketCount; i++) {
 		r += std::to_string(results[i]) + " ";
 	}
-	std::cout << r << std::endl;
+	zmq_send(responder, r.c_str(), r.size(), 0);
 	delete[] results;
 	isRunning = false;
+}
+
+void AItraining::handleServer() {
+	context = zmq_ctx_new();
+
+	//  Socket to talk to clients
+	void *responder = zmq_socket(context, ZMQ_REP);
+	int rc = zmq_bind(responder, "tcp://*:5555");
+	assert(rc == 0);
+
+	char buffer[10];
+	while (true) {
+		zmq_recv(responder, buffer, 1, 0);
+		if (DEBUGINHO) cout << "init: " << buffer[0] << endl;
+		switch (buffer[0])
+		{
+		case SCENE_INIT:
+			buffer[0] = OK;
+			zmq_send(responder, buffer, 1, 0);
+			memset(buffer, 0, sizeof(buffer));
+			zmq_recv(responder, buffer, 10, 0);
+			if (DEBUGINHO) cout << "scena: " << buffer[0] << endl;
+			spawnRockets(stoi(buffer));
+			while (!resultsReady) {
+				Sleep(10);
+			}
+			sendResults(responder);
+			break;
+		case KILL:
+			zmq_close(responder);
+			zmq_ctx_destroy(context);
+			return;
+		}
+	}
 }
