@@ -1,9 +1,10 @@
 #pragma once
 #include"common.h"
 
+sf::Vector2f operator*(sf::Vector2f v, double d);
+
 using namespace sf;
 
-Vector2f operator*(Vector2f v, double d);
 
 class SceneObject : public Drawable{
 public:
@@ -39,4 +40,18 @@ public:
 private:
 	Texture bgTexture;
 	Sprite bgSprite;
+};
+
+class Wave : public SceneObject {
+public:
+	Wave(Vector2f position, sf::Color color, bool direction, Vector2f size = Vector2f(1920, 200));
+	void draw(RenderTarget &target, RenderStates state)const;
+	void move(Vector2f position);
+	void action();
+	static void InitTextures();
+private:
+	bool direction;
+	float speed;
+	Sprite waveSprite1, waveSprite2;
+	static Texture waveTexture;
 };

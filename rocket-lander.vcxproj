@@ -145,7 +145,7 @@
       <AdditionalIncludeDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\SFML\include;C:\Users\kamil\Desktop\my_projects\rocket-lander\ZeroMQ\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -172,9 +172,14 @@
   <ItemGroup>
     <Image Include="Assets\Textures\flame_sheet.png" />
     <Image Include="Assets\Textures\rocket.png" />
+    <Image Include="Assets\Textures\wave.png" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\Resourcess\sansation.ttf" />
+    <Font Include="Assets\Resourcess\space-age.regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="common.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

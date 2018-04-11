@@ -9,7 +9,22 @@
 #include<iostream>
 #include<thread>
 #include<string>
-#include<Windows.h>
 #include<future>
 #include<chrono>
 #include<SFML\Graphics.hpp>
+
+#define DEBUGINHO false
+
+enum Fonts {
+	MAIN,
+	SPACE,
+};
+
+enum Commands {
+	SCENE_INIT = 'I',
+	OK = 'K',
+	ERROR_COM = 'E',
+	SIMULATION_DONE = 'D',
+	KILL = 'T',
+	CONTROL = 'C'
+};

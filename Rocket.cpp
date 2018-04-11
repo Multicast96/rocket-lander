@@ -38,8 +38,8 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	label.setCharacterSize(GameMaster::smallFontSize);
 	name.setPosition(position.x + size.x, position.y - size.y/2);
 	label.setPosition(position.x + size.x, position.y - size.y / 2 + label.getCharacterSize());
-	name.setFont(GameMaster::getFont());
-	label.setFont(GameMaster::getFont());
+	name.setFont(GameMaster::getFont(MAIN));
+	label.setFont(GameMaster::getFont(MAIN));
 	name.setFillColor(Color::Black);
 	label.setFillColor(Color::Black);
 	name.setString ("Janusz");
@@ -53,7 +53,7 @@ void Rocket::InitTextures() {
 	if (!Rocket::rocketTexture.loadFromFile("assets/textures/rocket.png")) throw std::runtime_error("Couldn't load rocket image");
 	if (!Rocket::flameTexture.loadFromFile("assets/textures/flame_sheet.png")) throw std::runtime_error("Couldn't load flame image");
 
-	flameTexture.setSmooth(false);
+	flameTexture.setSmooth(true);
 	rocketTexture.setSmooth(true);
 }
 
@@ -91,7 +91,7 @@ void Rocket::action() {
 	int thrust = 120;
 	if(isThrusting()) { acceleration.y = -thrust;}
 	else { acceleration.y = gravity;}
-	if (isMovingLeft()) timeout = true;
+	if (isMovingLeft()) move(Vector2f(-GameMaster::GetDeltaTime()*moveSpeed, 0));
 	if (isMovingRight()) move(Vector2f(GameMaster::GetDeltaTime()*moveSpeed, 0));
 
 	//vv - vertical velocity
@@ -142,6 +142,46 @@ RocketPlayer::RocketPlayer(Vector2f pos) : Rocket(pos) {
 }
 
 RocketPlayer::~RocketPlayer() {
+	exitSignal.set_value();
+	input.join();
+}
+
+
+void RocketAI::HandleInput(std::future<void> futureObj) {
+	void* context = zmq_ctx_new();
+
+	//  Socket to talk to clients
+	void *responder = zmq_socket(context, ZMQ_REP);
+	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
+	assert(rc == 0);
+
+	char buffer[10];
+	while (true) {
+		zmq_recv(responder, buffer, 2, 0);
+		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer << endl;
+		switch (buffer[0]) {
+		case KILL:
+			zmq_close(responder);
+			zmq_ctx_destroy(context);
+			return;
+		case CONTROL:
+			thrust = buffer[1];
+			memcpy(buffer, &position.y, 4);
+			memcpy(buffer + 4, &velocity.y, 4);
+			zmq_send(responder, buffer, 8, 0);
+			break;
+		}
+	}
+}
+
+RocketAI::RocketAI(Vector2f pos, int id) : Rocket(pos) {
+	futureObj = exitSignal.get_future();
+	input = std::thread(&RocketAI::HandleInput, this, std::move(futureObj));
+	name.setString("Janusz #" + std::to_string(id));
+	this->id = id;
+}
+
+RocketAI::~RocketAI() {
 	exitSignal.set_value();
 	input.join();
 }

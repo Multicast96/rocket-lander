@@ -34,8 +34,10 @@ public:
 	void action();
 	bool isActive;
 	bool timeout;
-private:
+protected:
+	sf::Text name;
 	Vector2f velocity;
+private:
 	Vector2f acceleration;
 	static double gravity;
 	static Texture rocketTexture;
@@ -44,7 +46,6 @@ private:
 	sf::Sprite flameSprites[1];
 	sf::Sprite rocketSprite;
 	int currentFlameFrame;
-	sf::Text name;
 	sf::Text label;
 };
 
@@ -52,6 +53,15 @@ class RocketPlayer : public Rocket{
 public:
 	RocketPlayer(Vector2f pos);
 	~RocketPlayer();
+	void HandleInput(std::future<void>);
+	std::thread input; //Nowy w¹tek s³ucha komunikatów sterowania
+};
+
+class RocketAI : public Rocket {
+public:
+	int id;
+	RocketAI(Vector2f pos, int id);
+	~RocketAI();
 	void HandleInput(std::future<void>);
 	std::thread input; //Nowy w¹tek s³ucha komunikatów sterowania
 };
