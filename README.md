@@ -1,4 +1,3 @@
-![Image](title.png)
 # Rocket-Lander
 This is repository for Rocket-Lander's client and AI.  
 
