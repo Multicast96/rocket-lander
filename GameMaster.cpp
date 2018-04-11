@@ -87,7 +87,7 @@ void GameMaster::MainLoop() {
 				window.close();
 			if (event.type == Event::KeyPressed) {
 				if (Keyboard::isKeyPressed(Keyboard::Space)) {
-					dynamic_cast<AItraining*>(currentScene)->spawnRockets(20);
+					dynamic_cast<AItraining*>(currentScene)->spawnRockets(1);
 				}
 			}
 		}
