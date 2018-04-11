@@ -148,10 +148,29 @@ RocketPlayer::~RocketPlayer() {
 
 
 void RocketAI::HandleInput(std::future<void> futureObj) {
-	while (futureObj.wait_for(std::chrono::milliseconds(10)) == std::future_status::timeout) {
-		thrust = Keyboard::isKeyPressed(Keyboard::W);
-		leftMovement = Keyboard::isKeyPressed(Keyboard::A);
-		rightMovement = Keyboard::isKeyPressed(Keyboard::D);
+	void* context = zmq_ctx_new();
+
+	//  Socket to talk to clients
+	void *responder = zmq_socket(context, ZMQ_REP);
+	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
+	assert(rc == 0);
+
+	char buffer[10];
+	while (true) {
+		zmq_recv(responder, buffer, 2, 0);
+		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer << endl;
+		switch (buffer[0]) {
+		case KILL:
+			zmq_close(responder);
+			zmq_ctx_destroy(context);
+			return;
+		case CONTROL:
+			thrust = buffer[1];
+			memcpy(buffer, &position.y, 4);
+			memcpy(buffer + 4, &velocity.y, 4);
+			zmq_send(responder, buffer, 8, 0);
+			break;
+		}
 	}
 }
 
@@ -159,6 +178,7 @@ RocketAI::RocketAI(Vector2f pos, int id) : Rocket(pos) {
 	futureObj = exitSignal.get_future();
 	input = std::thread(&RocketAI::HandleInput, this, std::move(futureObj));
 	name.setString("Janusz #" + std::to_string(id));
+	this->id = id;
 }
 
 RocketAI::~RocketAI() {

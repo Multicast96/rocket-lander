@@ -36,8 +36,8 @@ public:
 	bool timeout;
 protected:
 	sf::Text name;
-private:
 	Vector2f velocity;
+private:
 	Vector2f acceleration;
 	static double gravity;
 	static Texture rocketTexture;
