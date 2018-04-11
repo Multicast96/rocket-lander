@@ -1,5 +1,6 @@
 #include"GameMaster.h"
 #include"common.h"
+#include<Windows.h>
 
 int main()
 {
