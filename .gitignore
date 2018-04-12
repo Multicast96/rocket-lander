@@ -7,12 +7,8 @@
 !*.cpp
 !*.h
 !*.png
-!*.sln
 !*.ttf
 !*.dll
 !*.lib
 !*.hpp
-!*.vcxproj
-!*.inl
-!*.filters
 !*.md

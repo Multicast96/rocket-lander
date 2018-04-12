@@ -44,7 +44,7 @@ class Manager:
         socket.send_string(Commands.KILL.value + "a")
 
     def main_loop(self):
-        population_count = 20
+        population_count = 1
         self.init_sim(population_count)
 
         threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(population_count)]
