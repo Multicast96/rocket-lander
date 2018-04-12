@@ -1,6 +1,6 @@
 #pragma once
-#include"Scene.h"
-#include"common.h"
+#include"../Scenes/Scene.h"
+#include"../common.h"
 
 using namespace std;
 

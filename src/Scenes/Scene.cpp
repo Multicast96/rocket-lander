@@ -1,4 +1,3 @@
-#pragma once
 #include"Scene.h"
 
 const std::string Scene::SCENE_NAMES[2] = { "Menu","AI training",};

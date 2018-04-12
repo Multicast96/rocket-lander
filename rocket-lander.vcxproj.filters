@@ -12,46 +12,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameMaster.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Rocket.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneObject.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="AItraining.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="GameMaster.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Rocket.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneObject.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="Assets\Textures\flame_sheet.png">
       <Filter>Resources</Filter>
     </Image>
@@ -71,8 +31,46 @@
     </Font>
   </ItemGroup>
   <ItemGroup>
-    <None Include="common.cpp">
+    <ClInclude Include="src\common.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\GameMaster.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneObjects\Rocket.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneObjects\SceneObject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scenes\Scene.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Scenes\AItraining.cpp">
       <Filter>Source</Filter>
-    </None>
+    </ClCompile>
+    <ClCompile Include="src\Scenes\Scene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneObjects\Rocket.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneObjects\SceneObject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\GameMaster.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\GUI.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

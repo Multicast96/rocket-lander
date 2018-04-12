@@ -1,6 +1,6 @@
 #pragma once
-#include"common.h"
-#include"Rocket.h"
+#include"../common.h"
+#include"../SceneObjects/Rocket.h"
 
 // REMOTE CONNECTION DEPENDENCIES
 #include <zmq.h>

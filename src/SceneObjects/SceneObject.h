@@ -1,5 +1,5 @@
 #pragma once
-#include"common.h"
+#include"../common.h"
 
 sf::Vector2f operator*(sf::Vector2f v, double d);
 

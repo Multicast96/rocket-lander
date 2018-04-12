@@ -1,4 +1,4 @@
-#include"GameMaster.h"
+#include"Core\GameMaster.h"
 #include"common.h"
 #include<Windows.h>
 

@@ -1,5 +1,5 @@
 #include"Rocket.h"
-#include"GameMaster.h"
+#include"../Core/GameMaster.h"
 
 double Rocket::gravity = 98.1;
 

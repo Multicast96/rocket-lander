@@ -1,5 +1,5 @@
 #include"Scene.h"
-#include"GameMaster.h"
+#include"../Core/GameMaster.h"
 
 Vector2f AItraining::landingVelocity = Vector2f(0.0, 100);
 const double AItraining::simTime = 10.0;

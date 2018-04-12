@@ -154,22 +154,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AItraining.cpp" />
-    <ClCompile Include="GameMaster.cpp" />
-    <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Rocket.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SceneObject.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="common.h" />
-    <ClInclude Include="GameMaster.h" />
-    <ClInclude Include="Rocket.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneObject.h" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="Assets\Textures\flame_sheet.png" />
     <Image Include="Assets\Textures\rocket.png" />
     <Image Include="Assets\Textures\wave.png" />
@@ -179,7 +163,21 @@
     <Font Include="Assets\Resourcess\space-age.regular.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="common.cpp" />
+    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\Core\GameMaster.h" />
+    <ClInclude Include="src\SceneObjects\Rocket.h" />
+    <ClInclude Include="src\SceneObjects\SceneObject.h" />
+    <ClInclude Include="src\Scenes\Scene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\common.cpp" />
+    <ClCompile Include="src\Core\GameMaster.cpp" />
+    <ClCompile Include="src\Core\GUI.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\SceneObjects\Rocket.cpp" />
+    <ClCompile Include="src\SceneObjects\SceneObject.cpp" />
+    <ClCompile Include="src\Scenes\AItraining.cpp" />
+    <ClCompile Include="src\Scenes\Scene.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

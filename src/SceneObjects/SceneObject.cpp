@@ -1,6 +1,6 @@
 #pragma once
-#include"SceneObject.h"
-#include"GameMaster.h"
+#include"../SceneObjects/SceneObject.h"
+#include"../Core/GameMaster.h"
 #include<stdexcept>
 
 
