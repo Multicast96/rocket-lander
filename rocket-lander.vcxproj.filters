@@ -12,25 +12,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Assets\Textures\flame_sheet.png">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="Assets\Textures\rocket.png">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="Assets\Textures\wave.png">
-      <Filter>Resources</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="Assets\Resourcess\sansation.ttf">
-      <Filter>Resources</Filter>
-    </Font>
-    <Font Include="Assets\Resourcess\space-age.regular.ttf">
-      <Filter>Resources</Filter>
-    </Font>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\common.h">
       <Filter>Headers</Filter>
     </ClInclude>

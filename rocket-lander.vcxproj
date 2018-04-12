@@ -142,26 +142,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\SFML\include;C:\Users\kamil\Desktop\my_projects\rocket-lander\ZeroMQ\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\libs\SFML\include;C:\Users\kamil\Desktop\my_projects\rocket-lander\libs\ZeroMQ\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\ZeroMQ\bin\x64\Release\v140\dynamic;C:\Users\kamil\Desktop\my_projects\rocket-lander\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\kamil\Desktop\my_projects\rocket-lander\libs\ZeroMQ\bin\x64\Release\v140\dynamic;C:\Users\kamil\Desktop\my_projects\rocket-lander\libs\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics.lib;sfml-main.lib;libzmq.lib;sfml-window.lib;sfml-system.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Image Include="Assets\Textures\flame_sheet.png" />
-    <Image Include="Assets\Textures\rocket.png" />
-    <Image Include="Assets\Textures\wave.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="Assets\Resourcess\sansation.ttf" />
-    <Font Include="Assets\Resourcess\space-age.regular.ttf" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Core\GameMaster.h" />
