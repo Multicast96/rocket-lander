@@ -73,14 +73,19 @@ AItraining::~AItraining() {
 }
 
 void AItraining::spawnRockets(int n) {
+	//stworzenie socketow dla kazdej rakiety
+	void** responders = new void*[n];
+	for (int i = 0; i < n; i++) {
+		responders[i] = zmq_socket(context, ZMQ_REP);
+	}
+
 	rocketCount = n;
 	resultsReady = false;
 	results = new double[n];
 	for (int i = 0; i < n; i++) {
-		AddRocket(new RocketAI((Vector2f)GameMaster::getSize() * 0.5, i));
+		AddRocket(new RocketAI((Vector2f)GameMaster::getSize() * 0.5, i, responders[i]));
 	}
 	simStart = GameMaster::GetTime();
-	isRunning = true;
 }
 
 void AItraining::sendResults(void* responder) {
@@ -114,6 +119,8 @@ void AItraining::handleServer() {
 			zmq_recv(responder, buffer, 10, 0);
 			if (DEBUGINHO) cout << "scena: " << buffer[0] << endl;
 			spawnRockets(stoi(buffer));
+			Sleep(500);
+			isRunning = true;
 			while (!resultsReady) {
 				Sleep(10);
 			}

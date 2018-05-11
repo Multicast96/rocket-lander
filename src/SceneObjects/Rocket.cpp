@@ -148,10 +148,6 @@ RocketPlayer::~RocketPlayer() {
 
 
 void RocketAI::HandleInput(std::future<void> futureObj) {
-	void* context = zmq_ctx_new();
-
-	//  Socket to talk to clients
-	void *responder = zmq_socket(context, ZMQ_REP);
 	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
 	assert(rc == 0);
 
@@ -162,10 +158,9 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 		switch (buffer[0]) {
 		case KILL:
 			zmq_close(responder);
-			zmq_ctx_destroy(context);
 			return;
 		case CONTROL:
-			thrust = buffer[1];
+			thrust = buffer[1] - '0';
 			memcpy(buffer, &position.y, 4);
 			memcpy(buffer + 4, &velocity.y, 4);
 			zmq_send(responder, buffer, 8, 0);
@@ -174,7 +169,7 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 	}
 }
 
-RocketAI::RocketAI(Vector2f pos, int id) : Rocket(pos) {
+RocketAI::RocketAI(Vector2f pos, int id, void* responder) : Rocket(pos), responder(responder) {
 	futureObj = exitSignal.get_future();
 	input = std::thread(&RocketAI::HandleInput, this, std::move(futureObj));
 	name.setString("Janusz #" + std::to_string(id));

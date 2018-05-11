@@ -4,7 +4,7 @@ This is repository for Rocket-Lander's client and AI.
 ## Technology
 - C++
 - Python
-- SFML 2.3
+- SFML 2.4.2
 - ZeroMQ 4.2.3
 
 ## Authors
