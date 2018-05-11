@@ -3,7 +3,7 @@ import threading
 import struct
 import zmq
 import time
-import pygame
+#import pygame
 import sys
 from enum import Enum
 
@@ -21,7 +21,7 @@ class Manager:
     def __init__(self):
         self.context = zmq.Context()
         self.scene_socket = self.context.socket(zmq.REQ)
-        self.scene_socket.connect("tcp://localhost:5555")
+        self.scene_socket.connect("tcp://192.168.0.11:5555")
         self.terminate = False
 
     def init_sim(self, rocket_count):
@@ -31,7 +31,7 @@ class Manager:
 
     def rocket_controller(self, id):
         socket = self.context.socket(zmq.REQ)
-        socket.connect("tcp://localhost:"+str(50000+id))
+        socket.connect("tcp://192.168.0.11:"+str(50000+id))
         i = 0
         bonus = 0
         while not self.terminate:
@@ -42,6 +42,7 @@ class Manager:
             bonus = position > 400
             i += 1
         socket.send_string(Commands.KILL.value + "a")
+        socket.close()
 
     def main_loop(self):
         population_count = 1
@@ -58,6 +59,7 @@ class Manager:
         for t in threads:
             t.join()
         self.scene_socket.send_string(Commands.KILL.value)
+        self.scene_socket.close()
 
 
 m = Manager()

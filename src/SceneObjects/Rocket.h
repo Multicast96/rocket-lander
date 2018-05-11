@@ -60,7 +60,8 @@ public:
 class RocketAI : public Rocket {
 public:
 	int id;
-	RocketAI(Vector2f pos, int id);
+	void* responder;
+	RocketAI(Vector2f pos, int id, void* responder);
 	~RocketAI();
 	void HandleInput(std::future<void>);
 	std::thread input; //Nowy w¹tek s³ucha komunikatów sterowania
