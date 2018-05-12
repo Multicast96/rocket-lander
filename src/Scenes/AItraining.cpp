@@ -12,11 +12,11 @@ float AItraining::getTimeLeft() {
 }
 
 void AItraining::Action() {
-	if (!isRunning)
-		return;
 	auto it = sceneObjects.begin();
 	RocketAI* tmp;
 
+	if (!isRunning) return;
+	it = sceneObjects.begin();
 	//Jeœli czas symulacji siê skoñczy oznaczamy timeout w ka¿dej rakiecie na true
 	if (!getTimeLeft()) {
 		while (it != sceneObjects.end()) {
@@ -27,29 +27,34 @@ void AItraining::Action() {
 		}
 	}
 
-	isRunning = false;
+	isRunning = false; //czy zosta³a choæ jedna aktywna rakieta na ekranie
+
 	it = sceneObjects.begin();
+	GameMaster::displayOnGUI("Time: " + std::to_string(getTimeLeft()), GameMaster::GUI::UPPER_RIGHT1);
+	GameMaster::displayOnGUI("Generation: " + std::to_string(iteration), GameMaster::GUI::UPPER_RIGHT2);
+
 	while (it != sceneObjects.end()) {
 		(*it)->action(); //action performed by this object
+
 		if ((tmp = dynamic_cast<RocketAI*>(*it)) != nullptr && tmp->isActive) {
-			GameMaster::displayOnGUI("Time: " + std::to_string(getTimeLeft()), GameMaster::GUI::UPPER_RIGHT1);
 			isRunning = true;
 
 		//TODO jeszcze czs
-			double result;
+			double result = 0;
 			if (tmp->timeout) {
-				result = 0.5 / (1.0 + 0.005*(platform->getPosition().y - tmp->getPosition().y + (tmp->getSize().y - platform->getSize().y)*0.5));
+				//result = 0.5 / (1.0 + 0.005*(platform->getPosition().y - tmp->getPosition().y + (tmp->getSize().y - platform->getSize().y)*0.5));
 				tmp->isActive = false;
-				it++;
+				it = sceneObjects.erase(it);
 				results[tmp->id] = result;
 			}
 			else if (landingCheck(tmp)) {
 				if (tmp->getVelocity().y >= landingVelocity.y) {
+					tmp->isActive = false;
 					it = sceneObjects.erase(it);
-					result = 0.5 / (1.0 + 0.01*(tmp->getVelocity().y - landingVelocity.y));
+					//result = 0.5 / (1.0 + 0.01*(tmp->getVelocity().y - landingVelocity.y));
 				}
 				else {
-					result = 1 - 0.5 * tmp->getVelocity().y / landingVelocity.y;
+					//result = 1 - 0.5 * tmp->getVelocity().y / landingVelocity.y;
 					tmp->setVelocity(Vector2f(0, 0));
 					tmp->isActive = false;
 					it++;
@@ -60,8 +65,7 @@ void AItraining::Action() {
 		}
 		else it++;
 	}
-	if (!isRunning)
-		resultsReady = true;
+	if (!isRunning) resultsReady = true;
 }
 
 bool AItraining::landingCheck(Rocket *r) {
@@ -75,6 +79,7 @@ bool AItraining::landingCheck(Rocket *r) {
 
 AItraining::AItraining(Scene::SCENE_NAME sceneName) : Scene(sceneName), isRunning(false) {
 	server = std::thread(&AItraining::handleServer, this);
+	iteration = 0;
 }
 
 AItraining::~AItraining() {
@@ -86,8 +91,9 @@ void AItraining::spawnRockets(int n) {
 	resultsReady = false;
 	results = new double[n];
 	for (int i = 0; i < n; i++) {
-		AddRocket(new RocketAI(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y*0.3), i, context));
+		AddRocket(new RocketAI(Vector2f((GameMaster::getSize().x/n) * (n-i) - 100, GameMaster::getSize().y*0.3), i, context));
 	}
+	iteration++;
 }
 
 void AItraining::sendResults(void* responder) {
@@ -102,6 +108,8 @@ void AItraining::sendResults(void* responder) {
 
 void AItraining::handleServer() {
 	context = zmq_ctx_new();
+	auto it = sceneObjects.begin();
+	RocketAI *tmp;
 
 	//  Socket to talk to clients
 	void *responder = zmq_socket(context, ZMQ_PAIR);
@@ -132,6 +140,14 @@ void AItraining::handleServer() {
 			//Python tworzy w¹tki do sterowania rakiet
 			//i czeka na wyniki
 			zmq_recv(responder, buffer, 1, 0);
+
+			//Usuniêcie obiektów poprzedniej iteracji
+			while (it != sceneObjects.end()) {
+				tmp = dynamic_cast<RocketAI*>(*it);
+				if (tmp != NULL && !tmp->isActive) it = sceneObjects.erase(it);
+				else it++;
+			}
+
 
 			simStart = GameMaster::GetTime();
 			isRunning = true;

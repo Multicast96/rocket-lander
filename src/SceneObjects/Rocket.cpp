@@ -14,6 +14,7 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	Rocket::InitTextures();
 	isActive = true;
 	timeout = false;
+	frameReady = false;
 
 	rocketSprite.setTexture(Rocket::rocketTexture);
 	rocketSprite.setScale(Vector2f(GameMaster::getSize().x/1980.0, GameMaster::getSize().y/1080.0));
@@ -44,6 +45,13 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	label.setFillColor(Color::Black);
 	name.setString ("Janusz");
 
+
+	// Flame positioning
+	Vector2f tmp(position);
+	tmp.y += size.y / 2;
+	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
+	flameSprites[currentFlameFrame].setPosition(tmp);
+	flameSprites[currentFlameFrame].setScale(Vector2f(rocketSprite.getScale().x, isThrusting() ? rocketSprite.getScale().y : rocketSprite.getScale().y*0.25));
 }
 
 Texture Rocket::rocketTexture = Texture();
@@ -85,6 +93,7 @@ void Rocket::action() {
 	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
 	flameSprites[currentFlameFrame].setPosition(tmp);
 	flameSprites[currentFlameFrame].setScale(Vector2f(rocketSprite.getScale().x, isThrusting() ? rocketSprite.getScale().y : rocketSprite.getScale().y*0.25));
+	frameReady = true;
 }
 
 void Rocket::draw(RenderTarget &target, RenderStates state)const {
@@ -127,9 +136,25 @@ RocketPlayer::~RocketPlayer() {
 void RocketAI::HandleInput(std::future<void> futureObj) {
 	void* responder = zmq_socket(context, ZMQ_PAIR);
 	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
-	assert(rc == 0);
+	try {
+		assert(rc == 0);
+	}
+	catch (runtime_error &e) {
+		cout << "Asser error" << endl;
+	}
 	char buffer[16];
 	while (true) {
+		while (futureObj.wait_for(std::chrono::milliseconds(1)) != std::future_status::timeout) {
+			float distance = 0;
+			float timeLeft = -1; //sygna³ rozbicia siê rakiety
+			memcpy(buffer, &distance, 4); //wysokoœæ nad platform¹
+			memcpy(buffer + 4, &velocity.y, 4);
+			memcpy(buffer + 8, &timeLeft, 4);
+			zmq_send(responder, buffer, 12, 0);
+			zmq_close(responder);
+			return;
+		}
+
 		if(DEBUGINHO) cout << distanceToPlatform() << endl;
 		zmq_recv(responder, buffer, 2, 0);
 		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer[0];
@@ -138,13 +163,17 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 			zmq_close(responder);
 			return;
 		case CONTROL:
-			cout <<" "<<buffer[1]+"0" << endl;
+			if (DEBUGINHO) cout <<" "<<buffer[1]+"0" << endl;
 			thrust = buffer[1];
+
+			while (!frameReady && isActive) Sleep(1);
+			frameReady = false;
+
 			float distance = distanceToPlatform();
 			float timeLeft = AItraining::getTimeLeft(); //czas do zakoñczenia symulacji
 			memcpy(buffer, &distance, 4); //wysokoœæ nad platform¹
 			memcpy(buffer + 4, &velocity.y, 4);
-			memcpy(buffer + 8, &time, 4);
+			memcpy(buffer + 8, &timeLeft, 4);
 			zmq_send(responder, buffer, 12, 0);
 			break;
 		}

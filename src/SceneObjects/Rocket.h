@@ -32,6 +32,7 @@ public:
 protected:
 	sf::Text name;
 	Vector2f velocity;
+	bool frameReady; //Rakieta wykona³a akcjê w tej klatce
 private:
 	Vector2f acceleration;
 	static double gravity;
