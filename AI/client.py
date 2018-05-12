@@ -7,6 +7,8 @@ import time
 import sys
 from enum import Enum
 
+from ai import *
+
 
 class Commands(Enum):
     SCENE_INIT = 'I'
@@ -21,8 +23,10 @@ class Manager:
     def __init__(self):
         self.context = zmq.Context()
         self.scene_socket = self.context.socket(zmq.REQ)
-        self.scene_socket.connect("tcp://192.168.0.11:5555")
+        self.scene_socket.connect("tcp://localhost:5555")
         self.terminate = False
+        self.agent = Agent(3, 2) #inputs, outputs
+        self.state = None
 
     def init_sim(self, rocket_count):
         self.scene_socket.send_string(Commands.SCENE_INIT.value)
@@ -31,33 +35,46 @@ class Manager:
 
     def rocket_controller(self, id):
         socket = self.context.socket(zmq.REQ)
-        socket.connect("tcp://192.168.0.11:"+str(50000+id))
-        i = 0
-        bonus = 0
+        socket.connect("tcp://localhost:"+str(50000+id))
+        next_state = np.array([[420.0, 0.0, 0.0]])
         while not self.terminate:
-            socket.send_string(Commands.CONTROL.value + chr(bonus))
+            self.state = next_state
+            action = self.agent.act(self.state)
+            socket.send_string(Commands.CONTROL.value + chr(action))
+
             message = socket.recv()
-            position = struct.unpack('f', message[:4])[0]
-            velocity = struct.unpack('f', message[4:])[0]
-            bonus = position > 400
-            i += 1
+            height = struct.unpack('f', message[:4])[0]
+            velocity = struct.unpack('f', message[4:8])[0]
+            time_left = struct.unpack('f', message[8:])[0]
+            next_state = np.array([[height, velocity, time_left]])
+
+            self.agent.remember(self.state, action, reward(next_state), next_state, False)
         socket.send_string(Commands.KILL.value + "a")
         socket.close()
 
     def main_loop(self):
         population_count = 1
-        self.init_sim(population_count)
+        simulation_count = 4
+        for sim in range(simulation_count):
+            self.init_sim(population_count)
 
-        threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(population_count)]
+            threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(population_count)]
 
-        for t in threads:
-            t.start()
+            for t in threads:
+                t.start()
 
-        results = self.scene_socket.recv()
-        self.terminate = True
-        print(results.decode("ASCII"))
-        for t in threads:
-            t.join()
+            results = self.scene_socket.recv()
+            self.terminate = True
+            print("cpp results:")
+            print(results.decode("ASCII"))
+
+            print("simulation: {}/{}, score: {}".format(sim, simulation_count, reward(self.state)))
+
+            for t in threads:
+                t.join()
+
+            self.agent.replay(32)
+
         self.scene_socket.send_string(Commands.KILL.value)
         self.scene_socket.close()
 
