@@ -3,14 +3,22 @@
 
 Vector2f AItraining::landingVelocity = Vector2f(0.0, 100);
 const double AItraining::simTime = 10.0;
+double AItraining::simStart = 0;
+
+float AItraining::getTimeLeft() {
+	double tmpTime = simStart - GameMaster::GetTime() + simTime;
+	if (tmpTime < 0) return 0;
+	else return tmpTime;
+}
 
 void AItraining::Action() {
 	if (!isRunning)
 		return;
 	auto it = sceneObjects.begin();
 	RocketAI* tmp;
-	double tmpTime = simStart - GameMaster::GetTime() + simTime;
-	if (tmpTime <= 0) {
+
+	//Jeœli czas symulacji siê skoñczy oznaczamy timeout w ka¿dej rakiecie na true
+	if (!getTimeLeft()) {
 		while (it != sceneObjects.end()) {
 			if (tmp = dynamic_cast<RocketAI*>(*it)) {
 				tmp->timeout = true;
@@ -24,8 +32,9 @@ void AItraining::Action() {
 	while (it != sceneObjects.end()) {
 		(*it)->action(); //action performed by this object
 		if ((tmp = dynamic_cast<RocketAI*>(*it)) != nullptr && tmp->isActive) {
-			GameMaster::displayOnGUI("Time: " + std::to_string(tmpTime), GameMaster::GUI::UPPER_RIGHT1);
+			GameMaster::displayOnGUI("Time: " + std::to_string(getTimeLeft()), GameMaster::GUI::UPPER_RIGHT1);
 			isRunning = true;
+
 		//TODO jeszcze czs
 			double result;
 			if (tmp->timeout) {
@@ -83,9 +92,10 @@ void AItraining::spawnRockets(int n) {
 	resultsReady = false;
 	results = new double[n];
 	for (int i = 0; i < n; i++) {
-		AddRocket(new RocketAI((Vector2f)GameMaster::getSize() * 0.5, i, responders[i]));
+		AddRocket(new RocketAI(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y*0.3), i, responders[i]));
 	}
 	simStart = GameMaster::GetTime();
+	isRunning = true;
 }
 
 void AItraining::sendResults(void* responder) {
@@ -119,8 +129,6 @@ void AItraining::handleServer() {
 			zmq_recv(responder, buffer, 10, 0);
 			if (DEBUGINHO) cout << "scena: " << buffer[0] << endl;
 			spawnRockets(stoi(buffer));
-			Sleep(500);
-			isRunning = true;
 			while (!resultsReady) {
 				Sleep(10);
 			}

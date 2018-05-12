@@ -57,32 +57,9 @@ void Rocket::InitTextures() {
 	rocketTexture.setSmooth(true);
 }
 
-//void Rocket::RemoteConnection() {
-//	void *context = zmq_ctx_new();
-//
-//	//  Socket to talk to clients
-//	void *responder = zmq_socket(context, ZMQ_REP);
-//	int rc = zmq_bind(responder, "tcp://*:5555");
-//	assert(rc == 0);
-//	char buffer[10];
-//	std::string response = "";
-//	while (true) {
-//		zmq_recv(responder, buffer, 10, 0);
-//		int b = atoi(buffer);
-//		if (b & 0x1) move(Vector2f(-GameMaster::GetDeltaTime() * 100, 0)); //LEFT
-//		if (b & 0x2) move(Vector2f(GameMaster::GetDeltaTime() * 100, 0)); //RIGHT
-//		if (b & 0x4) acceleration.y = -120;
-//		else acceleration.y = gravity;
-//
-//		memset(buffer, 0, sizeof(buffer));
-//
-//		response = '(' + std::to_string(position.x) + " " + std::to_string(position.y) + ')'; //testy testy testy
-//		char tab2[1024];
-//		strcpy(tab2, response.c_str()); // brzyyyyydko
-//		zmq_send(responder, tab2, 25, 0);
-//	}
-//	zmq_ctx_destroy(context); //zwolnienie zasobów po³¹czenia 
-//}
+double Rocket::distanceToPlatform() {
+	return GameMaster::getSize().y - 175 - position.y + size.y / 2;
+}
 
 void Rocket::action() {
 	if (!isActive) return;
@@ -150,8 +127,8 @@ RocketPlayer::~RocketPlayer() {
 void RocketAI::HandleInput(std::future<void> futureObj) {
 	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
 	assert(rc == 0);
-
-	char buffer[10];
+	std::cout << distanceToPlatform() << std::endl;
+	char buffer[16];
 	while (true) {
 		zmq_recv(responder, buffer, 2, 0);
 		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer << endl;
@@ -160,10 +137,13 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 			zmq_close(responder);
 			return;
 		case CONTROL:
-			thrust = buffer[1] - '0';
-			memcpy(buffer, &position.y, 4);
+			thrust = buffer[1];
+			float distance = distanceToPlatform();
+			float timeLeft = AItraining::getTimeLeft(); //czas do zakoñczenia symulacji
+			memcpy(buffer, &distance, 4); //wysokoœæ nad platform¹
 			memcpy(buffer + 4, &velocity.y, 4);
-			zmq_send(responder, buffer, 8, 0);
+			memcpy(buffer + 8, &time, 4);
+			zmq_send(responder, buffer, 12, 0);
 			break;
 		}
 	}

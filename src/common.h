@@ -13,7 +13,7 @@
 #include<chrono>
 #include<SFML\Graphics.hpp>
 
-#define DEBUGINHO false
+#define DEBUGINHO true
 
 enum Fonts {
 	MAIN,

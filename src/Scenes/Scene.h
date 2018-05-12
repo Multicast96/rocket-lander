@@ -36,18 +36,20 @@ public:
 	AItraining(SCENE_NAME sceneName);
 	~AItraining();
 	void Action();
-	const static double simTime;
+	const static double simTime; // czas trwania symulacji
+	static float getTimeLeft(); //czas do koñca symulacji
 	void spawnRockets(int n);
 private:
 	void* context; //zmq connection
 	std::thread server;
 	bool isRunning;
-	double simStart;
 	double* results;
 	bool resultsReady;
 	int rocketCount;
 	void sendResults(void * responder);
 	void handleServer();
 	bool landingCheck(Rocket * r);
+	
+	static double simStart; //czas rozpoczêcia symulacji
 	static Vector2f landingVelocity;
 };

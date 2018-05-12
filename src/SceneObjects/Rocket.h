@@ -1,12 +1,6 @@
 #pragma once
 #include"SceneObject.h"
 #include"../common.h"
-// REMOTE CONNECTION DEPENDENCIES
-//#include <zmq.h>
-//#include <stdio.h>
-//#include <io.h>
-//#include <string.h>
-//#include <assert.h>
 
 class Steerable {
 public:
@@ -29,6 +23,7 @@ public:
 	void setVelocity(Vector2f v);
 	Rocket(Vector2f pos);
 	static void InitTextures();
+	double distanceToPlatform();
 	void draw(RenderTarget &target, RenderStates state)const;
 	void move(Vector2f pos);
 	void action();
