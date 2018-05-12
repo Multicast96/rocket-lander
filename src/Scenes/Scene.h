@@ -40,6 +40,7 @@ public:
 	static float getTimeLeft(); //czas do koñca symulacji
 	void spawnRockets(int n);
 private:
+	int iteration;
 	void* context; //zmq connection
 	std::thread server;
 	bool isRunning;
