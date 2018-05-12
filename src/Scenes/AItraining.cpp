@@ -82,20 +82,12 @@ AItraining::~AItraining() {
 }
 
 void AItraining::spawnRockets(int n) {
-	//stworzenie socketow dla kazdej rakiety
-	void** responders = new void*[n];
-	for (int i = 0; i < n; i++) {
-		responders[i] = zmq_socket(context, ZMQ_REP);
-	}
-
 	rocketCount = n;
 	resultsReady = false;
 	results = new double[n];
 	for (int i = 0; i < n; i++) {
-		AddRocket(new RocketAI(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y*0.3), i, responders[i]));
+		AddRocket(new RocketAI(Vector2f(GameMaster::getSize().x/2, GameMaster::getSize().y*0.3), i, context));
 	}
-	simStart = GameMaster::GetTime();
-	isRunning = true;
 }
 
 void AItraining::sendResults(void* responder) {
@@ -112,7 +104,7 @@ void AItraining::handleServer() {
 	context = zmq_ctx_new();
 
 	//  Socket to talk to clients
-	void *responder = zmq_socket(context, ZMQ_REP);
+	void *responder = zmq_socket(context, ZMQ_PAIR);
 	int rc = zmq_bind(responder, "tcp://*:5555");
 	assert(rc == 0);
 
@@ -123,12 +115,26 @@ void AItraining::handleServer() {
 		switch (buffer[0])
 		{
 		case SCENE_INIT:
+			//Rozpoczêcie inicjalizacji sceny
 			buffer[0] = OK;
 			zmq_send(responder, buffer, 1, 0);
+
+			//Odbieramy iloœæ rakiet do utworzenia
 			memset(buffer, 0, sizeof(buffer));
 			zmq_recv(responder, buffer, 10, 0);
 			if (DEBUGINHO) cout << "scena: " << buffer[0] << endl;
 			spawnRockets(stoi(buffer));
+
+			//Rakiety s¹ stworzone i oczekuj¹ na po³¹czenie
+			buffer[0] = OK;
+			zmq_send(responder, buffer, 1, 0);
+
+			//Python tworzy w¹tki do sterowania rakiet
+			//i czeka na wyniki
+			zmq_recv(responder, buffer, 1, 0);
+
+			simStart = GameMaster::GetTime();
+			isRunning = true;
 			while (!resultsReady) {
 				Sleep(10);
 			}

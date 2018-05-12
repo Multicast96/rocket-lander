@@ -55,7 +55,7 @@ public:
 class RocketAI : public Rocket {
 public:
 	int id;
-	void* responder;
+	void* context;
 	RocketAI(Vector2f pos, int id, void* responder);
 	~RocketAI();
 	void HandleInput(std::future<void>);
