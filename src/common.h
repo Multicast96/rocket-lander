@@ -13,7 +13,7 @@
 #include<chrono>
 #include<SFML\Graphics.hpp>
 
-#define DEBUGINHO true
+#define DEBUGINHO false
 
 enum Fonts {
 	MAIN,
@@ -25,6 +25,7 @@ enum Commands {
 	OK = 'K',
 	ERROR_COM = 'E',
 	SIMULATION_DONE = 'D',
+	WAITING_FOR_RESULTS = 'W',
 	KILL = 'T',
 	CONTROL = 'C'
 };
