@@ -11,18 +11,21 @@ import math
 
 
 class Agent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, pop_count):
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.99
+        self.epsilon_decay = 0.95
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.target_model = self._build_model()
         self.update_target_model()
+
+        self.pop_memory = [deque(maxlen=600) for _ in range(pop_count)]
+        self.results = [None] * pop_count
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -38,8 +41,8 @@ class Agent:
         # copy weights from model to target_model
         self.target_model.set_weights(self.model.get_weights())
 
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+    def remember(self, id, state, action, reward, next_state, done):
+        self.pop_memory[id].append((state, action, reward, next_state, done))
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
@@ -60,13 +63,27 @@ class Agent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+    def save_result(self, id, result):
+        self.results[id] = result
 
-f1 = 0.119117904604450 #magic number
+# wybór najlepszych doświadczeń z każdej iteracji
+    def choose_memories(self):
+        res_sum = sum(self.results)
+        for i, r in enumerate(self.results):
+            batch_size = min(int(2000*r/res_sum), 600)
+            self.memory.extend(random.sample(self.pop_memory[i], batch_size))
+
+
+# magic number
+f1 = 0.118950730798063
 
 
 def logsig(n):
-    return 1/(1+math.exp(-n))
+    try:
+        return 1/(1+math.exp(-n))
+    except OverflowError:
+        return 1
 
 
 def reward(state):
-    return (1 - logsig(1/(1 - state[0][0]/7000) + 1/(1 - abs(state[0][1]/1500)))) / f1
+    return (0.5 + state[0][2] * 0.05) * (1 - logsig(1 / (1 - state[0][0] / 2500) + 1 / (1 - abs(state[0][1] / 500)))) / f1
