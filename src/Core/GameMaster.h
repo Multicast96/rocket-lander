@@ -1,6 +1,7 @@
 #pragma once
 #include"../Scenes/Scene.h"
 #include"../common.h"
+#include<time.h>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ public:
 		sf::Vector2f screen;
 	};
 	static void displayOnGUI(std::string message , GUI::PLACEHOLDER place);
+	static double random();
 private:
 	vector<Scene*> scenes;
 	RenderWindow window;

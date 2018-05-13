@@ -27,5 +27,8 @@ enum Commands {
 	SIMULATION_DONE = 'D',
 	WAITING_FOR_RESULTS = 'W',
 	KILL = 'T',
-	CONTROL = 'C'
+	CONTROL = 'C',
+	LANDING = 'L',
+	BOOM = 'B',
+	FLIGHT = 'F' //flight in progres
 };
