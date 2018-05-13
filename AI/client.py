@@ -3,21 +3,13 @@ import threading
 import struct
 import zmq
 import time
-#import pygame
+# import pygame
 import sys
-from enum import Enum
+import keyboard
+import operator
 
 from ai import *
-
-
-class Commands(Enum):
-    SCENE_INIT = 'I'
-    OK = 'K'
-    ERROR = 'E'
-    SIMULATION_DONE = 'D'
-    WAITING_FOR_RESULTS = 'W'
-    KILL = 'T'
-    CONTROL = 'C'
+from commands import Commands
 
 
 class Manager:
@@ -27,7 +19,7 @@ class Manager:
         self.scene_socket = self.context.socket(zmq.PAIR)
         self.scene_socket.connect("tcp://192.168.0.11:5555")
         self.terminate = False
-        self.agent = Agent(3, 2, pop_count) #inputs, outputs
+        self.agent = Agent(3, 2, pop_count) # inputs, outputs
 
     def init_sim(self, rocket_count):
         self.scene_socket.send_string(Commands.SCENE_INIT.value)
@@ -36,54 +28,83 @@ class Manager:
         if self.scene_socket.recv().decode("ASCII") != Commands.OK.value:
             print("och")
 
-    def rocket_controller(self, id, sim):
+    def rocket_controller(self, id):
         socket = self.context.socket(zmq.PAIR)
         socket.connect("tcp://192.168.0.11:" + str(50000 + id))
-        next_state = np.array([[420.0, 0.0, 10.0]])
-        while not self.terminate:
+
+        message = socket.recv()
+        status = struct.unpack('c', message[:1])[0].decode("ASCII")
+        height = struct.unpack('f', message[1:5])[0]
+        velocity = struct.unpack('f', message[5:9])[0]
+        time_left = struct.unpack('f', message[9:])[0]
+        next_state = np.array([[height, velocity, time_left]])
+
+        # pakietas = 0
+
+        while (not self.terminate) and (status == Commands.FLYING.value):
             state = next_state
             action = self.agent.act(state)
             socket.send_string(Commands.CONTROL.value + chr(action))
 
             message = socket.recv()
-            height = struct.unpack('f', message[:4])[0]
-            velocity = struct.unpack('f', message[4:8])[0]
-            time_left = struct.unpack('f', message[8:])[0]
+            status = struct.unpack('c', message[:1])[0].decode("ASCII")
+            height = struct.unpack('f', message[1:5])[0]
+            velocity = struct.unpack('f', message[5:9])[0]
+            time_left = struct.unpack('f', message[9:])[0]
             next_state = np.array([[height, velocity, time_left]])
 
-            if next_state[0][2] == -1.0:
-                self.agent.remember(id, state, action, reward(next_state), next_state, True)
-                break
+            self.agent.remember(id, state, action, reward(next_state, status), next_state, False)
 
-            self.agent.remember(id, state, action, reward(next_state), next_state, False)
+            # pakietas += 1
 
-        self.agent.save_result(id, reward(state))
+        self.agent.pop_memory[id].pop()
+        self.agent.remember(id, state, action, reward(next_state, status), next_state, True)
+        self.agent.save_result(id, reward(state, status))
+        # print(pakietas)
         socket.send_string(Commands.KILL.value + "K")
         socket.close()
 
     def main_loop(self):
         simulation_count = 1000
-        for sim in range(simulation_count):
+        # for sim in range(simulation_count):
+        sim = 0
+        while(True):
             self.terminate = False
             self.init_sim(self.pop_count)
 
-            threads = [threading.Thread(target=self.rocket_controller, args=(i, sim)) for i in range(self.pop_count)]
+            threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(self.pop_count)]
 
-            print("simulation {}/{}...".format(sim + 1, simulation_count))
+            print("simulation {}/{}".format(sim + 1, simulation_count))
 
             for t in threads:
                 t.start()
 
+            print("simulating...")
+
             self.scene_socket.send_string(Commands.WAITING_FOR_RESULTS.value)
-            results = self.scene_socket.recv()
+            # results =
+            self.scene_socket.recv()
             self.terminate = True
+
+            print("finished.")
 
             for t in threads:
                 t.join()
 
-            print("best rocket: {}\n".format(max(self.agent.results)))
+            if keyboard.is_pressed('q'):
+                break
+
+            print("best rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
+                *max(enumerate(self.agent.results), key=operator.itemgetter(1)),
+                *min(enumerate(self.agent.results), key=operator.itemgetter(1)),
+                sum(self.agent.results)/self.pop_count))
+
             self.agent.choose_memories()
-            self.agent.replay(300)
+            self.agent.replay(2000)
+
+            print("learned.\n")
+
+            sim += 1
 
         self.scene_socket.send_string(Commands.KILL.value)
         self.scene_socket.close()
