@@ -37,21 +37,19 @@ Rocket::Rocket(Vector2f position) : SceneObject(position){
 	label = Text();
 	name.setCharacterSize(GameMaster::smallFontSize);
 	label.setCharacterSize(GameMaster::smallFontSize);
-	name.setPosition(position.x + size.x, position.y - size.y/2);
-	label.setPosition(position.x + size.x, position.y - size.y / 2 + label.getCharacterSize());
+	name.setPosition(position.x - size.x*2, position.y - size.y*0.8);
+	label.setPosition(position.x - size.x*2, position.y - size.y * 0.75 + label.getCharacterSize());
 	name.setFont(GameMaster::getFont(MAIN));
 	label.setFont(GameMaster::getFont(MAIN));
 	name.setFillColor(Color::Black);
 	label.setFillColor(Color::Black);
 	name.setString ("Janusz");
+	//vv - vertical velocity
+	label.setString("vv[m/s]: " + to_string(int(-velocity.y)));
 
 
 	// Flame positioning
-	Vector2f tmp(position);
-	tmp.y += size.y / 2;
-	tmp.x -= flameSprites[currentFlameFrame].getGlobalBounds().width / 2;
-	flameSprites[currentFlameFrame].setPosition(tmp);
-	flameSprites[currentFlameFrame].setScale(Vector2f(rocketSprite.getScale().x, isThrusting() ? rocketSprite.getScale().y : rocketSprite.getScale().y*0.25));
+	flameSprites[currentFlameFrame].setPosition(Vector2f(-100,-100));
 }
 
 Texture Rocket::rocketTexture = Texture();
@@ -66,7 +64,7 @@ void Rocket::InitTextures() {
 }
 
 double Rocket::distanceToPlatform() {
-	return GameMaster::getSize().y - 175 - position.y + size.y / 2;
+	return GameMaster::getSize().y - 150 - position.y + size.y / 2;
 }
 
 void Rocket::action() {
@@ -97,6 +95,7 @@ void Rocket::action() {
 }
 
 void Rocket::draw(RenderTarget &target, RenderStates state)const {
+	if (isCrashed) return;
 	target.draw(flameSprites[currentFlameFrame]);
 	target.draw(rocketSprite);
 	target.draw(name);
@@ -132,6 +131,13 @@ RocketPlayer::~RocketPlayer() {
 	input.join();
 }
 
+//Funkcja która przygotowuje dane do wys³ania do AI
+void RocketAI::prepareSendData(char *tab, float distance, float timeLeft, char state) {
+	memcpy(tab, &state, 1);
+	memcpy(tab+1, &distance, 4); //wysokoœæ nad platform¹
+	memcpy(tab + 5, &velocity.y, 4);
+	memcpy(tab + 9, &timeLeft, 4);
+}
 
 void RocketAI::HandleInput(std::future<void> futureObj) {
 	void* responder = zmq_socket(context, ZMQ_PAIR);
@@ -142,19 +148,11 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 	catch (runtime_error &e) {
 		cout << "Asser error" << endl;
 	}
-	char buffer[16];
+	char buffer[32];
+	//Wys³anie startowej pozycji rakiety
+	prepareSendData(buffer, distanceToPlatform(), AItraining::simTime , Commands::FLIGHT);
+	zmq_send(responder, buffer, 13, 0);
 	while (true) {
-		while (futureObj.wait_for(std::chrono::milliseconds(1)) != std::future_status::timeout) {
-			float distance = 0;
-			float timeLeft = -1; //sygna³ rozbicia siê rakiety
-			memcpy(buffer, &distance, 4); //wysokoœæ nad platform¹
-			memcpy(buffer + 4, &velocity.y, 4);
-			memcpy(buffer + 8, &timeLeft, 4);
-			zmq_send(responder, buffer, 12, 0);
-			zmq_close(responder);
-			return;
-		}
-
 		if(DEBUGINHO) cout << distanceToPlatform() << endl;
 		zmq_recv(responder, buffer, 2, 0);
 		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer[0];
@@ -163,18 +161,23 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 			zmq_close(responder);
 			return;
 		case CONTROL:
-			if (DEBUGINHO) cout <<" "<<buffer[1]+"0" << endl;
+			if (DEBUGINHO) cout << " " << buffer[1] + '0' << endl;
 			thrust = buffer[1];
 
+			//Synchronizacja klatek - AI mo¿e wykonywaæ tylko jeden ruch na klatkê.
 			while (!frameReady && isActive) Sleep(1);
 			frameReady = false;
 
-			float distance = distanceToPlatform();
-			float timeLeft = AItraining::getTimeLeft(); //czas do zakoñczenia symulacji
-			memcpy(buffer, &distance, 4); //wysokoœæ nad platform¹
-			memcpy(buffer + 4, &velocity.y, 4);
-			memcpy(buffer + 8, &timeLeft, 4);
-			zmq_send(responder, buffer, 12, 0);
+			if (!isActive && velocity.y == 0)
+				prepareSendData(buffer, 0, AItraining::getTimeLeft(), Commands::LANDING);
+			else if (isCrashed) {
+				prepareSendData(buffer, 0, -1, Commands::BOOM);
+				cout << "Crashed" << endl;
+			}
+			else
+				prepareSendData(buffer, distanceToPlatform(), AItraining::getTimeLeft(), Commands::FLIGHT);
+
+			zmq_send(responder, buffer, 13, 0);
 			break;
 		}
 	}
@@ -185,6 +188,7 @@ RocketAI::RocketAI(Vector2f pos, int id, void* context) : Rocket(pos), context(c
 	input = std::thread(&RocketAI::HandleInput, this, std::move(futureObj));
 	name.setString("Janusz #" + std::to_string(id));
 	this->id = id;
+	isCrashed = false;
 }
 
 RocketAI::~RocketAI() {

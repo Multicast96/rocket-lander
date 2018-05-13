@@ -10,6 +10,7 @@ sf::Vector2f operator*(sf::Vector2f v, double d) {
 
 using namespace sf;
 Vector2f SceneObject::getPosition() { return position; }
+void SceneObject::setPosition(Vector2f position) { this->position = position; }
 Vector2f SceneObject::getSize() { return size; }
 SceneObject::SceneObject(Vector2f position, Vector2f size) : position(position), size(size) {}
 

@@ -6,6 +6,9 @@ Font GameMaster::secondary_font = Font();
 
 double GameMaster::GetDeltaTime(){ return deltaTime; }
 void GameMaster::SetDeltaTime(double dTime) { deltaTime = dTime;}
+double GameMaster::random() {
+	return (double)rand() / RAND_MAX;
+}
 Font& GameMaster::getFont(Fonts option) {
 	switch (option)
 	{
@@ -35,6 +38,7 @@ void GameMaster::displayOnGUI(std::string message, GUI::PLACEHOLDER place) {
 GameMaster::GameMaster(Vector2i size) {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
+	srand(time(NULL));
 
 	GameMaster::size = size;
 	window.create(VideoMode(size.x, size.y), "Rocket Lander", Style::Default, settings);

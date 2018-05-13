@@ -50,7 +50,7 @@ void AItraining::Action() {
 			else if (landingCheck(tmp)) {
 				if (tmp->getVelocity().y >= landingVelocity.y) {
 					tmp->isActive = false;
-					it = sceneObjects.erase(it);
+					tmp->isCrashed = true;
 					//result = 0.5 / (1.0 + 0.01*(tmp->getVelocity().y - landingVelocity.y));
 				}
 				else {
@@ -72,6 +72,7 @@ bool AItraining::landingCheck(Rocket *r) {
 	Vector2f rPos = r->getPosition();
 	Vector2f rSize = r->getSize();
 	if (rPos.y + rSize.y / 2 > platform->getPosition().y - platform->getSize().y / 2) {
+		r->setPosition(Vector2f(r->getPosition().x, platform->getPosition().y - platform->getSize().y / 2));
 		return true;
 	}
 	return false;
@@ -90,8 +91,15 @@ void AItraining::spawnRockets(int n) {
 	rocketCount = n;
 	resultsReady = false;
 	results = new double[n];
+	double heightScattering = 100, velocityScattering = 50, x, y;
+	RocketAI* rocketAi;
 	for (int i = 0; i < n; i++) {
-		AddRocket(new RocketAI(Vector2f((GameMaster::getSize().x/n) * (n-i) - 100, GameMaster::getSize().y*0.3), i, context));
+		// GameMaster::getSize().y*0.3 => bazowa wysokoœæ
+		y = GameMaster::getSize().y*0.3 + GameMaster::random() * heightScattering * (GameMaster::random() < 0.5 ? -1 : 1);
+		x = (GameMaster::getSize().x / n) * (n - i) - 50;
+		rocketAi = new RocketAI(Vector2f(x, y), i, context);
+		rocketAi->setVelocity(Vector2f(0, GameMaster::random() * velocityScattering));
+		AddRocket(rocketAi);
 	}
 	iteration++;
 }
@@ -108,7 +116,6 @@ void AItraining::sendResults(void* responder) {
 
 void AItraining::handleServer() {
 	context = zmq_ctx_new();
-	auto it = sceneObjects.begin();
 	RocketAI *tmp;
 
 	//  Socket to talk to clients
@@ -118,6 +125,7 @@ void AItraining::handleServer() {
 
 	char buffer[10];
 	while (true) {
+		auto it = sceneObjects.begin();
 		zmq_recv(responder, buffer, 1, 0);
 		if (DEBUGINHO) cout << "init: " << buffer[0] << endl;
 		switch (buffer[0])

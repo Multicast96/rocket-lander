@@ -15,6 +15,7 @@ public:
 
 	Vector2f getSize();
 	Vector2f getPosition();
+	void setPosition(Vector2f position);
 protected:
 	Vector2f size;
 	Vector2f position;

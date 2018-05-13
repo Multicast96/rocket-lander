@@ -29,6 +29,7 @@ public:
 	void action();
 	bool isActive;
 	bool timeout;
+	bool isCrashed;
 protected:
 	sf::Text name;
 	Vector2f velocity;
@@ -59,6 +60,7 @@ public:
 	void* context;
 	RocketAI(Vector2f pos, int id, void* responder);
 	~RocketAI();
+	void prepareSendData(char * tab, float distance, float timeLeft, char state);
 	void HandleInput(std::future<void>);
 	std::thread input; //Nowy w¹tek s³ucha komunikatów sterowania
 };
