@@ -49,8 +49,8 @@ void AItraining::Action() {
 			}
 			else if (landingCheck(tmp)) {
 				if (tmp->getVelocity().y >= landingVelocity.y) {
-					tmp->isActive = false;
 					tmp->isCrashed = true;
+					tmp->isActive = false;
 					//result = 0.5 / (1.0 + 0.01*(tmp->getVelocity().y - landingVelocity.y));
 				}
 				else {
@@ -96,7 +96,7 @@ void AItraining::spawnRockets(int n) {
 	for (int i = 0; i < n; i++) {
 		// GameMaster::getSize().y*0.3 => bazowa wysokoœæ
 		y = GameMaster::getSize().y*0.3 + GameMaster::random() * heightScattering * (GameMaster::random() < 0.5 ? -1 : 1);
-		x = (GameMaster::getSize().x / n) * (n - i) - 50;
+		x = GameMaster::getSize().x * GameMaster::random();
 		rocketAi = new RocketAI(Vector2f(x, y), i, context);
 		rocketAi->setVelocity(Vector2f(0, GameMaster::random() * velocityScattering));
 		AddRocket(rocketAi);

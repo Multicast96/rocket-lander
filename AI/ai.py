@@ -30,6 +30,8 @@ class Agent:
 
         self.pop_memory = [deque(maxlen=600)] * pop_count
         self.results = [None] * pop_count
+        self.best_average = 0
+        self.best_memory = [deque(maxlen=600)] * pop_count
 
     def _build_model(self):
         model = Sequential()
@@ -81,6 +83,8 @@ class Agent:
         #     self.memory.extend(random.sample(self.pop_memory[i], batch_size))
         for pm in self.pop_memory:
             self.memory.extend(pm)
+        for bm in self.best_memory:
+            self.memory.extend(bm)
 
 # magic number
 # f1 = 0.047230125412280
@@ -91,6 +95,8 @@ v_max = 300
 t_max = 8
 
 v_boom = 0.731058578630005
+
+x_magic = -409601
 
 
 # def logsig(n):
@@ -131,3 +137,7 @@ def reward(state, status):
     #     return (0.5 + time_left * 0.05) + 1.0
     # else:
     #     return (1 - logsig(1 / (1 - height / 3000) + 2 / (1 - velocity / 500))) / f1
+
+
+def reward_x(state):
+    return state[0][0]**2 / x_magic + 1 + 0.5*t_reward(state[0][1])
