@@ -36,7 +36,7 @@ class Agent:
 
         if presentation:
             self.load(name)
-            self.epsilon_decay = 0.01
+            self.epsilon_decay = 0.0
 
     def _build_model(self):
         model = Sequential()

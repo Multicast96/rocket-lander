@@ -12,7 +12,7 @@ from copy import deepcopy
 from ai import *
 from commands import Commands
 
-presentation = True
+presentation = False
 
 
 class Manager:
