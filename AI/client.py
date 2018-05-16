@@ -40,7 +40,7 @@ class Manager:
 
     def rocket_controller(self, id):
         socket = self.context.socket(zmq.PAIR)
-        socket.connect("tcp://localhost:" + str(50000 + id))
+        socket.connect("tcp://localhost:" + str(60000 + id))
 
         message = socket.recv()
         status, next_state, next_state_x = self.decode_message(message)

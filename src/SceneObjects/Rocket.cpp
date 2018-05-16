@@ -148,7 +148,7 @@ void RocketAI::prepareSendData(char *tab, float distance_y, float distance_x, fl
 
 void RocketAI::HandleInput(std::future<void> futureObj) {
 	void* responder = zmq_socket(context, ZMQ_PAIR);
-	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(50000 + id)).c_str());
+	int rc = zmq_bind(responder, ("tcp://*:" + std::to_string(60000 + id)).c_str());
 	try {
 		assert(rc == 0);
 	}
