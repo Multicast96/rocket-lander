@@ -12,6 +12,8 @@ from copy import deepcopy
 from ai import *
 from commands import Commands
 
+presentation = True
+
 
 class Manager:
     def __init__(self, pop_count):
@@ -20,8 +22,8 @@ class Manager:
         self.scene_socket = self.context.socket(zmq.PAIR)
         self.scene_socket.connect("tcp://localhost:5555")
         self.terminate = False
-        self.agent = Agent(3, 2, pop_count)     # inputs, outputs, pop_count
-        self.agent_x = Agent(2, 2, pop_count)
+        self.agent = Agent(3, 2, pop_count, presentation, "network38.brain")     # inputs, outputs, pop_count
+        self.agent_x = Agent(2, 2, pop_count, presentation, "network_x38.brain")
 
     def init_sim(self, rocket_count):
         self.scene_socket.send_string(Commands.SCENE_INIT.value)
@@ -41,6 +43,7 @@ class Manager:
     def rocket_controller(self, id):
         socket = self.context.socket(zmq.PAIR)
         socket.connect("tcp://localhost:" + str(60000 + id))
+        socket.RCVTIMEO = 5000
 
         message = socket.recv()
         status, next_state, next_state_x = self.decode_message(message)
@@ -54,8 +57,13 @@ class Manager:
             action_x = self.agent_x.act(state_x)
             socket.send_string(Commands.CONTROL.value + chr(action + 2*action_x))
 
-            message = socket.recv()
-            status, next_state, next_state_x = self.decode_message(message)
+            try:
+                message = socket.recv()
+                status, next_state, next_state_x = self.decode_message(message)
+            except zmq.error.Again:
+                print("An error occured but don't worry, it's ok.")
+                socket.close()
+                return
 
             self.agent.remember(id, state, action, reward(next_state, status), next_state, False)
             self.agent_x.remember(id, state_x, action_x, reward_x(next_state_x), next_state_x, False)
@@ -85,7 +93,7 @@ class Manager:
 
             threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(self.pop_count)]
 
-            print("simulation {}/{}".format(sim + 1, simulation_count))
+            print("\n\nsimulation {}/{}".format(sim + 1, simulation_count))
 
             for t in threads:
                 t.start()
@@ -107,7 +115,7 @@ class Manager:
 
             avg = sum(self.agent.results)/self.pop_count
 
-            print("Agents:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
+            print("\nAgents:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
                 *max(enumerate(self.agent.results), key=operator.itemgetter(1)),
                 *min(enumerate(self.agent.results), key=operator.itemgetter(1)),
                 avg))
@@ -116,10 +124,11 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent.best_memory = deepcopy(self.agent.pop_memory)
                 self.agent.best_average = avg
+                self.agent.save("network" + str(sim + 1) + ".brain")
 
             avg = sum(self.agent_x.results) / self.pop_count
 
-            print("Agent_xs:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
+            print("\nAgent_xs:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
                 *max(enumerate(self.agent_x.results), key=operator.itemgetter(1)),
                 *min(enumerate(self.agent_x.results), key=operator.itemgetter(1)),
                 avg))
@@ -128,6 +137,7 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent_x.best_memory = deepcopy(self.agent_x.pop_memory)
                 self.agent_x.best_average = avg
+                self.agent_x.save("network_x" + str(sim + 1) + ".brain")
 
             self.agent.choose_memories()
             self.agent_x.choose_memories()
@@ -142,5 +152,8 @@ class Manager:
         self.scene_socket.close()
 
 
-m = Manager(10)
+if presentation:
+    m = Manager(1)
+else:
+    m = Manager(10)
 m.main_loop()

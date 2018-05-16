@@ -14,7 +14,7 @@ from commands import Commands
 
 
 class Agent:
-    def __init__(self, state_size, action_size, pop_count):
+    def __init__(self, state_size, action_size, pop_count, presentation, name):
         self.pop_count = pop_count
         self.state_size = state_size
         self.action_size = action_size
@@ -32,6 +32,11 @@ class Agent:
         self.results = [None] * pop_count
         self.best_average = 0
         self.best_memory = [deque(maxlen=600)] * pop_count
+        self.presentation = presentation
+
+        if presentation:
+            self.epsilon = self.epsilon_min
+            self.load(name)
 
     def _build_model(self):
         model = Sequential()
@@ -44,6 +49,12 @@ class Agent:
     def update_target_model(self):
         # copy weights from model to target_model
         self.target_model.set_weights(self.model.get_weights())
+
+    def load(self, name):
+        self.model.load_weights(name)
+
+    def save(self, name):
+        self.model.save_weights(name)
 
     def remember(self, id, state, action, reward, next_state, done):
         self.pop_memory[id].append((state, action, reward, next_state, done))

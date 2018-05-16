@@ -155,13 +155,18 @@ void RocketAI::HandleInput(std::future<void> futureObj) {
 	catch (runtime_error &e) {
 		cout << "Asser error" << endl;
 	}
+	int timeout = 5000;
+	zmq_setsockopt(responder, ZMQ_RCVTIMEO, &timeout, sizeof(int));
 	char buffer[32];
 	//Wys³anie startowej pozycji rakiety
 	prepareSendData(buffer, distanceToPlatformY(),distanceToPlatformX(), AItraining::simTime , Commands::FLIGHT);
 	zmq_send(responder, buffer, 17, 0);
-	while (true) {
+	while(true){
 		if(DEBUGINHO) cout << distanceToPlatformY()<<" " <<distanceToPlatformX()<< endl;
-		zmq_recv(responder, buffer, 2, 0);
+		if (zmq_recv(responder, buffer, 2, 0) == EAGAIN) {
+			zmq_close(responder);
+			return;
+		}
 		if (DEBUGINHO) cout << "rakieta " << id << ": " << buffer[0];
 		switch (buffer[0]) {
 		case KILL:
