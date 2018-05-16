@@ -124,7 +124,8 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent.best_memory = deepcopy(self.agent.pop_memory)
                 self.agent.best_average = avg
-                self.agent.save("network" + str(sim + 1) + ".brain")
+                if not presentation:
+                    self.agent.save("network" + str(sim + 1) + ".brain")
 
             avg = sum(self.agent_x.results) / self.pop_count
 
@@ -137,7 +138,8 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent_x.best_memory = deepcopy(self.agent_x.pop_memory)
                 self.agent_x.best_average = avg
-                self.agent_x.save("network_x" + str(sim + 1) + ".brain")
+                if not presentation:
+                    self.agent_x.save("network_x" + str(sim + 1) + ".brain")
 
             self.agent.choose_memories()
             self.agent_x.choose_memories()

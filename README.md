@@ -9,7 +9,7 @@ This is repository for Rocket-Lander's client and AI.
 
 ## Authors
 - [Kamil Dakus](https://github.com/Multicast96)
-- [Jan Czubiak](https://www.facebook.com/profile.php?id=100013718018858)
+- [Jan Czubiak](https://github.com/TheLastSlowpoke)
 
 ## Screenshots
 ![Screenshot 1](/docs/screenshot_1.png?raw=true "Screenshot 1")
