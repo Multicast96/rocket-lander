@@ -7,9 +7,12 @@ import time
 import sys
 import keyboard
 import operator
+from copy import deepcopy
 
 from ai import *
 from commands import Commands
+
+presentation = True
 
 
 class Manager:
@@ -17,9 +20,10 @@ class Manager:
         self.pop_count = pop_count
         self.context = zmq.Context()
         self.scene_socket = self.context.socket(zmq.PAIR)
-        self.scene_socket.connect("tcp://192.168.0.11:5555")
+        self.scene_socket.connect("tcp://localhost:5555")
         self.terminate = False
-        self.agent = Agent(3, 2, pop_count) # inputs, outputs
+        self.agent = Agent(3, 2, pop_count, presentation, "network_Y.brain")     # inputs, outputs, pop_count
+        self.agent_x = Agent(2, 2, pop_count, presentation, "network_X.brain")
 
     def init_sim(self, rocket_count):
         self.scene_socket.send_string(Commands.SCENE_INIT.value)
@@ -28,53 +32,69 @@ class Manager:
         if self.scene_socket.recv().decode("ASCII") != Commands.OK.value:
             print("och")
 
-    def rocket_controller(self, id):
-        socket = self.context.socket(zmq.PAIR)
-        socket.connect("tcp://192.168.0.11:" + str(50000 + id))
-
-        message = socket.recv()
+    def decode_message(self, message):
         status = struct.unpack('c', message[:1])[0].decode("ASCII")
         height = struct.unpack('f', message[1:5])[0]
         velocity = struct.unpack('f', message[5:9])[0]
-        time_left = struct.unpack('f', message[9:])[0]
-        next_state = np.array([[height, velocity, time_left]])
+        time_left = struct.unpack('f', message[9:13])[0]
+        x_distance = struct.unpack('f', message[13:])[0]
+        return status, np.array([[height, velocity, time_left]]), np.array([[x_distance, time_left]])
+
+    def rocket_controller(self, id):
+        socket = self.context.socket(zmq.PAIR)
+        socket.connect("tcp://localhost:" + str(60000 + id))
+        socket.RCVTIMEO = 5000
+
+        message = socket.recv()
+        status, next_state, next_state_x = self.decode_message(message)
 
         # pakietas = 0
 
         while (not self.terminate) and (status == Commands.FLYING.value):
             state = next_state
+            state_x = next_state_x
             action = self.agent.act(state)
-            socket.send_string(Commands.CONTROL.value + chr(action))
+            action_x = self.agent_x.act(state_x)
+            socket.send_string(Commands.CONTROL.value + chr(action + 2*action_x))
 
-            message = socket.recv()
-            status = struct.unpack('c', message[:1])[0].decode("ASCII")
-            height = struct.unpack('f', message[1:5])[0]
-            velocity = struct.unpack('f', message[5:9])[0]
-            time_left = struct.unpack('f', message[9:])[0]
-            next_state = np.array([[height, velocity, time_left]])
+            try:
+                message = socket.recv()
+                status, next_state, next_state_x = self.decode_message(message)
+            except zmq.error.Again:
+                print("An error occured but don't worry, it's ok.")
+                socket.close()
+                return
 
             self.agent.remember(id, state, action, reward(next_state, status), next_state, False)
+            self.agent_x.remember(id, state_x, action_x, reward_x(next_state_x), next_state_x, False)
 
             # pakietas += 1
 
+        # zamiana oststniego done na True
+        if self.terminate:
+            self.agent_x.pop_memory[id].pop()
+            self.agent_x.remember(id, state_x, action_x, reward_x(next_state_x), next_state_x, True)
         self.agent.pop_memory[id].pop()
         self.agent.remember(id, state, action, reward(next_state, status), next_state, True)
+
         self.agent.save_result(id, reward(state, status))
+        self.agent_x.save_result(id, reward_x(state_x))
         # print(pakietas)
         socket.send_string(Commands.KILL.value + "K")
         socket.close()
 
     def main_loop(self):
         simulation_count = 1000
+        rep_once = False
         # for sim in range(simulation_count):
         sim = 0
-        while(True):
+        while True:
             self.terminate = False
             self.init_sim(self.pop_count)
 
             threads = [threading.Thread(target=self.rocket_controller, args=(i,)) for i in range(self.pop_count)]
 
-            print("simulation {}/{}".format(sim + 1, simulation_count))
+            print("\n\nsimulation {}/{}".format(sim + 1, simulation_count))
 
             for t in threads:
                 t.start()
@@ -94,15 +114,45 @@ class Manager:
             if keyboard.is_pressed('q'):
                 break
 
-            print("best rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
+            avg = sum(self.agent.results)/self.pop_count
+
+            print("\nAgents:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
                 *max(enumerate(self.agent.results), key=operator.itemgetter(1)),
                 *min(enumerate(self.agent.results), key=operator.itemgetter(1)),
-                sum(self.agent.results)/self.pop_count))
+                avg))
+
+            if avg >= self.agent.best_average:
+                print("\t NEW BEST")
+                self.agent.best_memory = deepcopy(self.agent.pop_memory)
+                self.agent.best_average = avg
+                if not presentation:
+                    self.agent.save("network" + str(sim + 1) + ".brain")
+
+            avg = sum(self.agent_x.results) / self.pop_count
+
+            print("\nAgent_xs:\nbest rocket ({}):\t{}\nworst rocket ({}):\t{}\navg rocket:\t\t\t{}".format(
+                *max(enumerate(self.agent_x.results), key=operator.itemgetter(1)),
+                *min(enumerate(self.agent_x.results), key=operator.itemgetter(1)),
+                avg))
+
+            if avg >= self.agent_x.best_average:
+                print("\t NEW BEST")
+                self.agent_x.best_memory = deepcopy(self.agent_x.pop_memory)
+                self.agent_x.best_average = avg
+                if not presentation:
+                    self.agent_x.save("network_x" + str(sim + 1) + ".brain")
 
             self.agent.choose_memories()
-            self.agent.replay(2000)
-
-            print("learned.\n")
+            self.agent_x.choose_memories()
+            if not presentation:
+                self.agent.replay(2000)
+                print("learned.")
+                self.agent_x.replay(400)
+                print("learned x.")
+            elif not rep_once:
+                self.agent.replay(1)
+                self.agent_x.replay(1)
+                rep_once = True
 
             sim += 1
 
@@ -110,5 +160,8 @@ class Manager:
         self.scene_socket.close()
 
 
-m = Manager(10)
+if presentation:
+    m = Manager(1)
+else:
+    m = Manager(10)
 m.main_loop()

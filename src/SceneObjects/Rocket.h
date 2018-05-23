@@ -23,7 +23,8 @@ public:
 	void setVelocity(Vector2f v);
 	Rocket(Vector2f pos);
 	static void InitTextures();
-	double distanceToPlatform();
+	double distanceToPlatformY();
+	double distanceToPlatformX();
 	void draw(RenderTarget &target, RenderStates state)const;
 	void move(Vector2f pos);
 	void action();
@@ -34,6 +35,7 @@ protected:
 	sf::Text name;
 	Vector2f velocity;
 	bool frameReady; //Rakieta wykona³a akcjê w tej klatce
+	static std::string Rocket::names[];
 private:
 	Vector2f acceleration;
 	static double gravity;
@@ -60,7 +62,7 @@ public:
 	void* context;
 	RocketAI(Vector2f pos, int id, void* responder);
 	~RocketAI();
-	void prepareSendData(char * tab, float distance, float timeLeft, char state);
+	void prepareSendData(char * tab, float distance_y, float distance_x, float timeLeft, char state);
 	void HandleInput(std::future<void>);
 	std::thread input; //Nowy w¹tek s³ucha komunikatów sterowania
 };
