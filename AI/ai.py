@@ -9,12 +9,14 @@ from keras import backend as K
 
 import math
 from scipy.special import expit
+from keras.models import load_model
 
 from commands import Commands
 
 
 class Agent:
     def __init__(self, state_size, action_size, pop_count, presentation, name):
+        self.presentation = presentation
         self.pop_count = pop_count
         self.state_size = state_size
         self.action_size = action_size
@@ -22,39 +24,35 @@ class Agent:
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.95
+        self.epsilon_decay = 0
         self.learning_rate = 0.001
-        self.model = self._build_model()
-        self.target_model = self._build_model()
-        self.update_target_model()
+
+        if presentation:
+            self.model = self.load(name)
+        else:
+            self.model = self._build_model()
 
         self.pop_memory = [deque(maxlen=600)] * pop_count
         self.results = [None] * pop_count
         self.best_average = 0
         self.best_memory = [deque(maxlen=600)] * pop_count
-        self.presentation = presentation
 
         if presentation:
-            self.epsilon = self.epsilon_min
             self.load(name)
 
     def _build_model(self):
         model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
+        model.add(Dense(32, input_dim=self.state_size, activation='relu', trainable=(not self.presentation)))
+        model.add(Dense(32, activation='relu', trainable= (not self.presentation)))
+        model.add(Dense(self.action_size, activation='linear', trainable=(not self.presentation)))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         return model
 
-    def update_target_model(self):
-        # copy weights from model to target_model
-        self.target_model.set_weights(self.model.get_weights())
-
     def load(self, name):
-        self.model.load_weights(name)
+        return load_model(name)
 
     def save(self, name):
-        self.model.save_weights(name)
+        self.model.save(name)
 
     def remember(self, id, state, action, reward, next_state, done):
         self.pop_memory[id].append((state, action, reward, next_state, done))

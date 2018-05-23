@@ -22,8 +22,8 @@ class Manager:
         self.scene_socket = self.context.socket(zmq.PAIR)
         self.scene_socket.connect("tcp://localhost:5555")
         self.terminate = False
-        self.agent = Agent(3, 2, pop_count, presentation, "network38.brain")     # inputs, outputs, pop_count
-        self.agent_x = Agent(2, 2, pop_count, presentation, "network_x38.brain")
+        self.agent = Agent(3, 2, pop_count, presentation, "network_Y.brain")     # inputs, outputs, pop_count
+        self.agent_x = Agent(2, 2, pop_count, presentation, "network_X.brain")
 
     def init_sim(self, rocket_count):
         self.scene_socket.send_string(Commands.SCENE_INIT.value)
@@ -85,6 +85,7 @@ class Manager:
 
     def main_loop(self):
         simulation_count = 1000
+        rep_once = False
         # for sim in range(simulation_count):
         sim = 0
         while True:
@@ -124,7 +125,8 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent.best_memory = deepcopy(self.agent.pop_memory)
                 self.agent.best_average = avg
-                self.agent.save("network" + str(sim + 1) + ".brain")
+                if not presentation:
+                    self.agent.save("network" + str(sim + 1) + ".brain")
 
             avg = sum(self.agent_x.results) / self.pop_count
 
@@ -137,14 +139,20 @@ class Manager:
                 print("\t NEW BEST")
                 self.agent_x.best_memory = deepcopy(self.agent_x.pop_memory)
                 self.agent_x.best_average = avg
-                self.agent_x.save("network_x" + str(sim + 1) + ".brain")
+                if not presentation:
+                    self.agent_x.save("network_x" + str(sim + 1) + ".brain")
 
             self.agent.choose_memories()
             self.agent_x.choose_memories()
-            self.agent.replay(2000)
-            print("learned.")
-            self.agent_x.replay(400)
-            print("learned x.")
+            if not presentation:
+                self.agent.replay(2000)
+                print("learned.")
+                self.agent_x.replay(400)
+                print("learned x.")
+            elif not rep_once:
+                self.agent.replay(1)
+                self.agent_x.replay(1)
+                rep_once = True
 
             sim += 1
 
